@@ -1,0 +1,68 @@
+{
+  "cfg": {
+    "code":             "cfg",
+    "update_frequency": "M",
+    "update_source":    "release",
+    "db_tns_name":      "//uaz-dv-n10.mosaic.arizona.edu:1523/UAZKFCFG",
+    "db_user":          "ua",
+    "db_password":      "kulowner"
+  },
+  "cnv": {
+    "code":             "cnv",
+    "update_frequency": "MTWRF",
+    "update_source":    "daily",
+    "update_offset":    -1,
+    "db_tns_name":      "//uaz-dv-n10.mosaic.arizona.edu:1523/UAZKFCNV",
+    "db_user":          "ua",
+    "db_password":      "kulowner"
+  },
+  "dev": {
+    "code":             "dev",
+    "update_frequency": "MTWRF",
+    "update_source":    "daily",
+    "db_tns_name":      "//uaz-dv-n10.mosaic.arizona.edu:1523/UAZKFDEV",
+    "db_user":          "ua",
+    "db_password":      "kulowner"
+  },
+  "dmo": {
+    "code":             "dmo",
+    "update_frequency": "F",
+    "update_source":    "release",
+    "db_tns_name":      "//uaz-kf-d01.mosaic.arizona.edu:1521/UAZKFDMO"
+  },
+  "stg": {
+    "code":             "stg",
+    "update_frequency": "M",
+    "update_source":    "release",
+    "db_tns_name":      "//uaz-dv-n10.mosaic.arizona.edu:1523/UAZKFSTG"
+  },
+  "sup": {
+    "code":             "sup",
+    "update_frequency": "F",
+    "update_source": "release",
+    "url": "https://financialsup.uaccess.arizona.edu"
+  },
+  "trn": {
+    "code":             "trn",
+    "update_frequency": "M",
+    "update_source":    "release",
+    "db_tns_name":      "uaz-dv-n10.mosaic.arizona.edu:1523/UAZKFTRN",
+    "db_user":          "ua",
+    "db_password":      "kulowner"
+  },
+  "tr2": {
+    "code":             "tr2",
+    "update_frequency": "M",
+    "update_source":    "release",
+    "db_tns_name":      "uaz-dv-n10.mosaic.arizona.edu:1523/UAZKFTR2",
+    "db_user":          "",
+    "db_password":      "kulowner"
+  },
+  "tst": {
+    "code":             "tst",
+    "update_frequency": "MTWRF",
+    "update_source":    "daily",
+    "db_user":          "ua",
+    "db_password":      "kulowner"
+  }
+}
