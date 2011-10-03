@@ -15,13 +15,14 @@ module KaikiFS
 end
 
 class KaikiFS::Driver
-  attr_reader :selenium_driver, :env, :pause
+  attr_reader :selenium_driver, :env, :username, :screenshot_dir
+  attr_accessor :pause, :record
   alias :page :selenium_driver
   LOGFILE = "loggy-log"
   ENVS_FILE = "envs.json"
   SCREEN_SHOT_DIR = File.join(File.dirname(__FILE__), '..', '..', 'public', 'images')
   extend Forwardable
-  def_delegators :@selenium_driver, :wait_for_text, :stop
+  def_delegators :@selenium_driver, :click, :get_text, :stop, :wait_for_text, :window_maximize
 
   def initialize(username, password, options={})
     @username = username
@@ -37,13 +38,14 @@ class KaikiFS::Driver
     end
 
     @screen_shot_dir = options[:screen_shot_dir] || SCREEN_SHOT_DIR
-    @pause = options[:pause] || 1
+    @pause = options[:pause] || 0.2
 
-    ##@log = Logger.new 'log'
-    ##@log.outputters = FileOutputter.new 'logfile', {:filename => LOGFILE, :trunc => true}
     unlink_old_screenshots
 
     @threads = []
+    @record = {}  # record is a hash containing notes that the "user" needs to keep, like the document number he just created.
+
+    @stderr_log = File.join(Dir::pwd, 'features', 'stderr', Time.now.strftime("%Y.%m.%d-%H.%M.%S"))
   end
 
   def unlink_old_screenshots
@@ -58,34 +60,47 @@ class KaikiFS::Driver
   end
 
   def show_tab(name)
-    page.click "tab-#{name}-imageToggle"
+    #page.click "tab-#{name}-imageToggle"
+    page.click "//input[@title='open #{name}']"
   end
 
-  def click(locator); page.click locator; end
-
   def click_and_wait(locator)
-    page.click locator
-    page.wait_for_page_to_load "60000"
+    dont_stdout! do
+      page.click locator
+      page.wait_for_page_to_load "60000"
+    end
+  end
+
+  def click_approximate_and_wait(locators)
+    locators.each do |locator|
+      begin
+        click_and_wait(locator)
+        return
+      rescue Selenium::CommandError
+        # Try the next selector
+      end
+    end
+    raise Selenium::CommandError
   end
 
   def is_text_present(text)
     page.is_text_present(text)
   end
 
-  def get_text(locator, regex)
-    if regex.class != Regexp
-      regex = Regexp.new(regex)
-    end
-    !60.times do
-      break if (page.get_text(locator) =~ regex rescue false)
-      puts page.get_text(locator)
-      sleep 1
-    end
-  end
+  #def get_text(locator, regex)
+  #  if regex.class != Regexp
+  #    regex = Regexp.new(regex)
+  #  end
+  #  !60.times do
+  #    break if (page.get_text(locator) =~ regex rescue false)
+  #    puts page.get_text(locator)
+  #    sleep 1
+  #  end
+  #end
 
   def select_frame(frame); page.select_frame frame; end
 
-  def wait_for_page_to_load(ms); page.wait_for_page_to_load ms; end
+  def wait_for_page_to_load(ms='60000'); page.wait_for_page_to_load ms; end
 
   def record_kfs_version
     !60.times{ break if (page.get_text("build") =~ /(3.0-(?:\d+)) \(Oracle9i\)/ rescue false); sleep 1 }
@@ -106,6 +121,16 @@ class KaikiFS::Driver
     end
   end
 
+  def mk_screenshot_dir(base)
+    @screenshot_dir = File.join(base, Time.now.strftime("%Y-%m-%d.%H"))
+    return if Dir::exists? @screenshot_dir
+    Dir::mkdir(@screenshot_dir)
+  end
+
+  def screenshot(name)
+      page.capture_entire_page_screenshot(File.join(@screenshot_dir, "#{name}.png"), "background=#FFFFFF")
+  end
+
   def login_via_webauth
     page.click "link=Main Menu"
     page.wait_for_page_to_load "60000"
@@ -116,16 +141,12 @@ class KaikiFS::Driver
     sleep 1
     page.wait_for_page_to_load "60000"
 
-    #@log.info "in login_via_webauth: #{@env} " + cookies.inspect
-    #puts      "in login_via_webauth: #{@env} " + cookies.inspect
 
     # Check if we logged in successfully
     return if not page.is_element_present("status")  # this is where an error is displayed at the webauth site.
     if page.get_text("status") == "You entered an invalid NetID or password."
-      ##@log.error "#{@env}: Webauth login returned: " + "You entered an invalid NetID or password."
       raise WebauthAuthenticationError.new
     elsif page.get_text("status") == "Password is a required field."
-      ##@log.error "#{@env}: Webauth login returned: " + "Password is a required field."
       raise WebauthAuthenticationError.new
     end
   end
@@ -168,19 +189,18 @@ class KaikiFS::Driver
         login_via_webauth
         yield
       rescue Selenium::CommandError => err
-        ##@log.error "#{@env}: Found error: #{err}" # eg: ERROR: Element link=Account not found
+        1
       rescue WebauthAuthenticationError
         raise
       rescue StandardError => err
-        ##@log.error "#{@env}: Found error: #{err}"
-        ##@log.error "#{@env}: Found error: #{err.class}"
+        1
       ensure
         @threads.each { |t| t.join }
         @selenium_driver.close_current_browser_session
       end
     end
   rescue WebauthAuthenticationError => err
-    ##@log.error "Discontinuing tests following a #{err.class}."
+    1
   end
 
   def backdoor_as(user)
@@ -189,19 +209,41 @@ class KaikiFS::Driver
     page.wait_for_page_to_load "60000"
   end
 
+  def set_approximate_field(selectors, value=nil)
+    selectors.each do |selector|
+      begin
+        set_field(selector, value)
+        return
+      rescue Selenium::CommandError
+        # Try the next selector
+      end
+    end
+    raise Selenium::CommandError
+  end
+
   def set_field(id, value=nil)
-    if id =~ /^\/\//
-      nodeName = page.get_eval("window.document.evaluate(\"#{id}\", window.document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.nodeName;").downcase
+    if id =~ /@value=/  # I am praying I only use value for radio buttons...
+      node_name = 'radio'
+      locator = id
+    elsif id =~ /^\/\//
+      node_name = nil
+      dont_stdout! do
+        begin
+          node_name = page.get_eval("window.document.evaluate(\"#{id}\", window.document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.nodeName;").downcase
+        rescue Selenium::CommandError
+          node_name = page.get_eval("window.document.getElementById(\"iframeportlet\").contentDocument.evaluate(\"#{id}\", window.document.getElementById(\"iframeportlet\").contentDocument, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.nodeName;").downcase
+        end
+      end
       locator = id
     elsif id =~ /^.+=.+ .+=.+$/
-      nodeName = 'radio'
+      node_name = 'radio'
       locator = id
     else
-      nodeName = page.get_eval("window.document.getElementById('#{id}').nodeName;").downcase
+      node_name = page.get_eval("window.document.getElementById('#{id}').nodeName;").downcase
       locator = 'id='+id
     end
 
-    case nodeName
+    case node_name
     when 'input'
       page.type locator, value
     when 'select'
@@ -230,11 +272,22 @@ class KaikiFS::Driver
     page.wait_for_page_to_load "60000"
 
     !60.times{ break if (page.get_text("//form[@id='kualiForm']/table/tbody/tr/td[2]/p/span[1]") =~ /(\d+) items retrieved, displaying 1 to 100./ rescue false); sleep 1 }
-    ##@log.info "Results of Vendor search: " + page.get_text("//form[@id='kualiForm']/table/tbody/tr/td[2]/p/span[1]")
 
     page.select_frame "relative=up"
     page.click "link=Main Menu"
     page.wait_for_page_to_load "60000"
+  end
+
+  def dont_stdout!
+    orig_stdout = $stdout
+
+    # redirect stdout to /dev/null
+    $stdout = File.open(@stderr_log, 'a')
+
+    yield if block_given?
+
+    # restore stdout
+    $stdout = orig_stdout
   end
 
   def transfer_of_funds_new(options = {})
@@ -282,7 +335,6 @@ class KaikiFS::Driver
       validation_text = "Transfer of Funds"
     end
     !60.times{ break if (page.is_text_present(validation_text) rescue false); sleep 1 }
-    ##@log.info "Results of Doc search after Transfer of Funds: " + validation_text
 
     page.select_frame "relative=up"
     page.click "link=Main Menu"
@@ -308,10 +360,31 @@ class KaikiFS::Driver
     page
   end
 
+  def central_admin_panel
+    page.select_frame "relative=up"
+    page.click "link=Central Admin"
+    page.wait_for_page_to_load "60000"
+    page
+  end
+
   def maintenance_panel
     page.select_frame "relative=up"
     page.click "link=Maintenance"
     page.wait_for_page_to_load "60000"
     page
   end
+
+  def administration_panel
+    page.select_frame "relative=up"
+    page.click "link=Administration"
+    page.wait_for_page_to_load "60000"
+    page
+  end
+
+
+  #def method_missing(name, *args, &block)
+  #  if name.to_s =~ /^try_(.*)/
+
+  #  end
+  #end
 end
