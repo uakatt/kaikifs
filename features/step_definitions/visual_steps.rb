@@ -4,4 +4,12 @@ end
 
 When /^I show the "([^"]*)" tab$/ do |tab|
   kaikifs.show_tab tab
+  sleep 2
+end
+
+When /^I click "([^"]*)" under (.*)$/ do |button, tab|
+  case
+  when button =~ /inactive/
+    kaikifs.click_and_wait("xpath=//h2[contains(text(), '#{tab}')]/../following-sibling::*//input[contains(@title, 'inactive')]")
+  end
 end
