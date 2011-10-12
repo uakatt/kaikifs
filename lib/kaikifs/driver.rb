@@ -86,17 +86,6 @@ class KaikiFS::Driver
     page.is_text_present(text)
   end
 
-  #def get_text(locator, regex)
-  #  if regex.class != Regexp
-  #    regex = Regexp.new(regex)
-  #  end
-  #  !60.times do
-  #    break if (page.get_text(locator) =~ regex rescue false)
-  #    puts page.get_text(locator)
-  #    sleep 1
-  #  end
-  #end
-
   def select_frame(frame); page.select_frame frame; end
 
   def wait_for_page_to_load(ms='60000'); page.wait_for_page_to_load ms; end
@@ -148,35 +137,6 @@ class KaikiFS::Driver
     elsif page.get_text("status") == "Password is a required field."
       raise WebauthAuthenticationError.new
     end
-  end
-
-  def lookup_basic_account
-    page.click "link=Account"
-    page.wait_for_page_to_load "60000"
-    page.select_frame "iframeportlet"
-    page.type "chartOfAccountsCode", "UA"
-    page.type "accountNumber", "1080000"
-    page.click "//input[@name='methodToCall.search' and @value='search']"
-    page.wait_for_page_to_load "60000"
-    page.capture_entire_page_screenshot("#{@screen_shot_dir}/account_1080000_#{@env}.png", "background=#FFFFFF")
-
-    begin
-      ChunkyPNG  # will raise if library not included, fail back to normal screenshot in the 'rescue'
-      screen_string_in_base64 = page.capture_entire_page_screenshot_to_string("")
-      @threads << Thread.new do
-        screen_string = Base64.decode64(screen_string_in_base64)
-        png_canvas = ChunkyPNG::Canvas.from_string(screen_string)
-        png_canvas = png_canvas.resample(png_canvas.width/2, png_canvas.width/2)
-        png_canvas.to_image.save("#{@screen_shot_dir}/account_1080000_#{@env}_thumb.png", :fast_rgba)
-      end
-    rescue NameError
-      page.capture_entire_page_screenshot("#{@screen_shot_dir}/account_1080000_#{@env}_thumb.png", "background=#FFFFFF")
-    end
-
-    sleep 1
-    #page.click "link=1080000"
-    #page.select_frame "relative=up"
-    #!60.times{ break if ("1080000" == page.get_text("accountNumber.div") rescue false); sleep 1 }
   end
 
   def run_in_envs(envs = @envs)
@@ -260,23 +220,6 @@ class KaikiFS::Driver
     page.get_eval("window.document.evaluate("+selector+", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;");
   end
 
-  def vendor_search(options = {})
-    page.click "link=Vendor"
-    page.wait_for_page_to_load "60000"
-    page.select_frame "iframeportlet"
-    options.each do |id,value|
-      set_field(id, value)
-    end
-    page.click "//input[@name='methodToCall.search' and @value='search']"
-    page.wait_for_page_to_load "60000"
-
-    !60.times{ break if (page.get_text("//form[@id='kualiForm']/table/tbody/tr/td[2]/p/span[1]") =~ /(\d+) items retrieved, displaying 1 to 100./ rescue false); sleep 1 }
-
-    page.select_frame "relative=up"
-    page.click "link=Main Menu"
-    page.wait_for_page_to_load "60000"
-  end
-
   def dont_stdout!
     orig_stdout = $stdout
 
@@ -287,57 +230,6 @@ class KaikiFS::Driver
 
     # restore stdout
     $stdout = orig_stdout
-  end
-
-  def transfer_of_funds_new(options = {})
-    page.click "link=Transfer of Funds"
-    page.wait_for_page_to_load "60000"
-    page.select_frame "iframeportlet"
-    options.reject {|k,v| k == "accounting_lines"}.each do |id,value|
-      set_field(id, value)
-    end
-
-    if options["accounting_lines"]
-      accounting_lines = options["accounting_lines"]
-      if accounting_lines["from"]
-        accounting_lines["from"].each do |acct_line|
-          acct_line.each { |id,value| set_field(id, value) }
-          page.click "methodToCall.insertSourceLine.anchoraccountingSourceAnchor"
-          page.wait_for_page_to_load "60000"
-        end
-      end
-
-      if accounting_lines["to"]
-        accounting_lines["to"].each do |acct_line|
-          acct_line.each { |id,value| set_field(id, value) }
-          page.click "methodToCall.insertTargetLine.anchoraccountingTargetAnchor"
-          page.wait_for_page_to_load "60000"
-        end
-      end
-    end
-
-    page.click "methodToCall.route"
-    page.wait_for_page_to_load "60000"
-
-    page.select_frame "relative=up"
-    page.click "link=Main Menu"
-    page.wait_for_page_to_load "60000"
-    page.click "//img[@alt='doc search']"
-    page.wait_for_page_to_load "60000"
-    page.select_frame "iframeportlet"
-    page.type "fromDateCreated", Time.now.strftime("%m/%d/%Y")
-    page.click "//input[@name='methodToCall.search' and @value='search']"
-    page.wait_for_page_to_load "60000"
-    if options["//input[@id='document.documentHeader.documentDescription']"]
-      validation_text = "Transfer Of Funds - #{options["//input[@id='document.documentHeader.documentDescription']"]}"
-    else
-      validation_text = "Transfer of Funds"
-    end
-    !60.times{ break if (page.is_text_present(validation_text) rescue false); sleep 1 }
-
-    page.select_frame "relative=up"
-    page.click "link=Main Menu"
-    page.wait_for_page_to_load "60000"
   end
 
   def start_session
@@ -379,11 +271,4 @@ class KaikiFS::Driver
     page.wait_for_page_to_load "60000"
     page
   end
-
-
-  #def method_missing(name, *args, &block)
-  #  if name.to_s =~ /^try_(.*)/
-
-  #  end
-  #end
 end
