@@ -1,8 +1,8 @@
 function usage {
   echo "Various cucumber commands:"
   echo ""
-  echo "1. xdg-open ~/Documents/the-cucumber-book_b5_0.pdf"
-  echo "      This command opens the cucumber book (Beta 5)"
+  echo "1. xdg-open ~/Documents/the-cucumber-book_b6_0.pdf"
+  echo "      This command opens the cucumber book (Beta 6)"
   echo ""
   echo "2. cucumber"
   echo "      Base cucumber command"
@@ -24,7 +24,7 @@ fi
 
 case $1 in
 1)
-  xdg-open ~/Documents/the-cucumber-book_b5_0.pdf
+  xdg-open ~/Documents/the-cucumber-book_b6_0.pdf
   ;;
 2)
   cucumber
