@@ -1,0 +1,3 @@
+iframe = document.getElementById("iframeportlet");
+
+function selectFirstUnderDocumentWithin(selector) { return iframe.contentDocument.evaluate(selector, iframe.contentDocument, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; }
