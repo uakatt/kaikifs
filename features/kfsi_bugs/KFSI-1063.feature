@@ -3,12 +3,11 @@ Feature: KFSI-1063
   Background:
     Given I am up top
 
-  @jira @incomplete
+  @jira
   Scenario: I can hide inactive Vendor Aliases.
 
     Given I am backdoored as "kfs-test-sec32"
     And I am on the "main_menu" tab
-    And I am fast
     When I click the "Vendor" portal link
     And I click "create new"
     And I set the "Description" to something like "testing: KFSI-1063"
@@ -34,7 +33,7 @@ Feature: KFSI-1063
     And I record this "Vendor Name"
     And I am up top
     And I backdoor as "kfs-test-sec50"
-    And I open my Action List
+    And I open my Action List, refreshing until that document appears
     And I open that document
     And I click "approve" and wait
     And I click "yes" and wait
@@ -44,7 +43,6 @@ Feature: KFSI-1063
     And I set the "Vendor Name" to that one
     And I click "search" and wait
     And I edit the first one
-    And I sleep for "20" seconds
     And I click "hide inactive" under Search Alias
     Then I shouldn't get an HTTP Status 500
     And I shouldn't see an incident report

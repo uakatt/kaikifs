@@ -8,7 +8,6 @@ Feature: KFSI-1021
 
     Given I am backdoored as "kfs-test-sec32"
     And I am on the "main_menu" tab
-    And I am fast
     When I click the "Vendor" portal link
     And I click "create new"
     And I set the "Description" to something like "testing: KFSI-1021"
@@ -36,13 +35,13 @@ Feature: KFSI-1021
     And I click "yes" and wait
     And I am on the "main_menu" tab
     And I click the "Requisition" portal link
-    And I set "documentDescription" in the "documentHeader" to something like "testing: KFSI-1021"
+    And I set the "Description" to something like "testing: KFSI-1021"
     And I start a lookup for "Building"
-    And I set "buildingCode" to "10"
+    And I set the "Building Code" to "10"
     And I click "search" and wait
     And I return with the first result
     And I start a lookup for "Room"
-    And I set "buildingRoomNumber" to "0001"
+    And I set the "Building Room Number" to "0001"
     And I click "search" and wait
     And I return with the first result
     And I start a lookup for "Suggested Vendor"
@@ -51,7 +50,6 @@ Feature: KFSI-1021
     And I return with the first result
     And I fill out a new Item with default values
     And I add that "Item" and wait
-    And I sleep for "10" seconds
     And I set the "Requestor Phone" to "345-876-6589"
     And I set the "Requestor Email" to "kfs-test-sec19@email.arizona.edu"
     And I click "calculate" and wait

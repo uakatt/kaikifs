@@ -52,16 +52,16 @@ When /^I set the "([^"]*)" to something like "([^"]*)"$/ do |field, value|
   kaikifs.set_approximate_field(
     [
       "//div[contains(text(), '#{field}:')]/../following-sibling::*/input[1] | //div[contains(text(), '#{field}:')]/../following-sibling::*/select[1]",
-      # The following are for horrible places in KFS where the text in a th might not be the first text() node.
-      "//th[contains(text(), '#{field}')]",     # INCOMPLETE
-      "//th[contains(text()[1], '#{field}')]",  # INCOMPLETE
-      "//th[contains(text()[2], '#{field}')]/../following-sibling::*//*[contains(@title, '#{field}')]", # Group > create new > Chart Code
-      "//th[contains(text()[3], '#{field}')]",  # INCOMPLETE
       # The following appear on lookups like the Person Lookup. Like Group > create new > Assignee Lookup (find a shorter path to Person Lookup)
       # Also like Document Description
       "//th/label[contains(text(), '#{field}')]/../following-sibling::td/input[1]",
       "//th/label[contains(text()[1], '#{field}')]/../following-sibling::td/input[1]",  # Vendor > create new > Document Overview Description
-      "//th/label[contains(text()[2], '#{field}')]/../following-sibling::td/input[1]"
+      "//th/label[contains(text()[2], '#{field}')]/../following-sibling::td/input[1]",
+      # The following are for horrible places in KFS where the text in a th might not be the first text() node.
+      "//th[contains(text(), '#{field}')]",     # INCOMPLETE
+      "//th[contains(text()[1], '#{field}')]",  # INCOMPLETE
+      "//th[contains(text()[2], '#{field}')]/../following-sibling::*//*[contains(@title, '#{field}')]", # Group > create new > Chart Code
+      "//th[contains(text()[3], '#{field}')]"   # INCOMPLETE
     ],
     value)
 end
@@ -102,11 +102,17 @@ When /^I set the new "([^"]*)" radio to "([^"]*)"$/ do |field, value|
 end
 
 When /^I set a new ([^']*)'s "([^"]*)" to "([^"]*)"$/ do |tab, field, value|
-  object = tab.pluralize  # Assignee  -->  Assignees
+  object =
+    case tab
+    when 'Address' then 'Address'
+    else                tab.pluralize  # Assignee  -->  Assignees
+    end
   div = "tab-#{object}-div"
   kaikifs.set_approximate_field(
     [
       "//*[@id='#{div}']//div[contains(text(), '#{field}:')]/../following-sibling::*/input[1] | //div[contains(text(), '#{field}:')]/../following-sibling::*/select[1]",
+      "//*[@id='#{div}']//th/label[contains(text(), '#{field}')]/../following-sibling::td//select[1]",  # Vendor > create new > new Address > Address Type
+      "//*[@id='#{div}']//th/label[contains(text(), '#{field}')]/../following-sibling::td//input[1]",   # Vendor > create new > new Address > Address 1
       "//*[@id='#{div}']//th[contains(text(), '#{field}')]/../following-sibling::tr//*[contains(@title, '#{field}')]",
       "//*[@id='#{div}']//th[contains(text()[1], '#{field}')]/../following-sibling::tr//*[contains(@title, '#{field}')]",
       "//*[@id='#{div}']//th[contains(text()[2], '#{field}')]/../following-sibling::tr//*[contains(@title, '#{field}')]", # Group > create new > set Group Namespace > Assignees
@@ -136,20 +142,6 @@ When /^I set "([^"]*)" in the "([^"]*)" to something like "([^"]*)"$/ do |field,
   end
 end
 
-#When /^I set the new "([^"]*)"( radio)? to "([^"]*)"$/ do |field, radio, value|
-#  v = value.gsub(/#\{(\d+)i\}/) do |m|
-#    m =~ /(\d+)/
-#    d = $1.to_i-1
-#    (rand*(9*10**d) + 10**d).to_i
-#  end
-#  if radio
-#    locator="name=document.newMaintainableObject.#{field} value=#{v}"
-#    kaikifs.set_field(locator)
-#  else
-#    kaikifs.set_field("document.newMaintainableObject."+field, v)
-#  end
-#end
-
 When /^I set the new "([^"]*)" to something like "([^"]*)"$/ do |field, value|
   kaikifs.set_field("document.newMaintainableObject."+field, "#{value} #{Time.now.to_i}")
 end
@@ -175,13 +167,18 @@ When /^I add that "([^"]*)" and wait$/ do |child|
     when child =~ /Vendor Address|vendorAddress/  # A new vendor fieldset has no id.
       'methodToCall.addLine.vendorAddresses.(!!org.kuali.kfs.vnd.businessobject.VendorAddress!!)'
     else
-      div = case
-            when child == 'Search Alias' then 'tab-SearchAlias-div'
-            else                              "tab-#{child.pluralize}-div"
-            end
+      div =
+        case
+        when child == 'Search Alias' then 'tab-SearchAlias-div'
+        else                              "tab-#{child.pluralize}-div"
+        end
       # click the (only) add button in the right tab. Example: Group > create new > Assignees
-      "xpath=//*[@id='#{div}']//input[contains(@src, 'add1.gif')]"  # hard-coding add1.gif until we need another image.
-                                                                    # I don't just want to rely on 'add' yet...
+      # hard-coding add1.gif until we need another image. I don't just want to rely on 'add' yet...
+      case
+      # The first 'input[contains(@src, 'add1.gif')] is the hidden 'import lines' add button.
+      when child == 'Item' then "xpath=//div[@id='#{div}']//input[@title='Add an Item']"
+      else                      "xpath=//div[@id='#{div}']//input[contains(@src, 'add1.gif')]"
+      end
     end
   kaikifs.click_and_wait addButton
 end
@@ -232,7 +229,7 @@ When /^I fill out a new Item with default values$/ do
   kaikifs.set_field(prefix+'itemUnitPrice', '3.14')
 end
 
-When /^I fill out a new (Vendor Address|vendorAddress) with the following:$/ do |table|
+When /^I fill out a new (?:Vendor Address|vendorAddress) with the following:$/ do |table|
   fields = table.rows_hash
   prefix = "document.newMaintainableObject.add.vendorAddresses."
   fields.each do |key, value|

@@ -28,6 +28,7 @@ When /^I wait for that document to appear in my Action List$/i do
     refresh_tries -= 1
     raise command_error if refresh_tries == 0
     sleep wait_time
+    # kaikifs.click_and_wait "refresh"
     retry
   end
 end

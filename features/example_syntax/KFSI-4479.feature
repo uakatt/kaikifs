@@ -12,25 +12,25 @@ Feature: KFSI-4479
     And I am on the "main_menu" tab
     When I click the "Vendor" portal link
     And I click "create new"
-    And I set "documentDescription" in the "documentHeader" to something like "testing: KFSI-4479"
-    And I set the new "vendorName" to "KFSI-4479 #{4i}"
-    And I set the new "vendorHeader.vendorTypeCode" to "Purchase Order"
-    And I set the new "vendorHeader.vendorTaxNumber" to "123456789"
-    And I set the new "vendorHeader.vendorTaxTypeCode" radio to "SSN"
-    And I set the new "vendorHeader.vendorOwnershipCode" to "INDIVIDUAL/SOLE PROPRIETOR"
-    And I set the new "extension.conflictOfInterest" to "None"
-    And I set the new "extension.defaultB2BPaymentMethodCode" to "A - ACH/Check"
-    And I set an additional vendorAddress's "vendorAddressTypeCode" to "PURCHASE ORDER"
-    And I set an additional vendorAddress's "vendorLine1Address" to "123 Main St."
-    And I set an additional vendorAddress's "vendorCityName" to "Tucson"
-    And I set an additional vendorAddress's "vendorStateCode" to "AZ"
-    And I set an additional vendorAddress's "vendorZipCode" to "85719"
-    And I set an additional vendorAddress's "vendorCountryCode" to "UNITED STATES"
-    And I set an additional vendorAddress's "vendorDefaultAddressIndicator" to "Yes"
-    And I add that vendorAddress and wait
-    And I set the first vendorAddress's additional vendorDefaultAddress's "vendorCampusCode" to "MC - Main Campus"
-    And I add that first vendorAddress's vendorDefaultAddress and wait
-    And I set the new "extension.azSalesTaxLicense" to "123456789AB"
+    And I set the "Description" to something like "testing: KFSI-4479"
+    And I set the new "Vendor Name" to "KFSI-4479 #{4i}"
+    And I set the new "Vendor Type" to "Purchase Order"
+    And I set the new "Tax Number" to "99#{5i}99"
+    And I set the new "Tax Number Type" radio to "SSN"
+    And I set the new "Ownership Type" to "INDIVIDUAL/SOLE PROPRIETOR"
+    And I set the new "Conflict of Interest" to "None"
+    And I set the new "Default Payment Method" to "A - ACH/Check"
+    And I set a new Address's "Address Type" to "PURCHASE ORDER"
+    And I set a new Address's "Address 1" to "123 Main St."
+    And I set a new Address's "City" to "Tucson"
+    And I set a new Address's "State" to "AZ"
+    And I set a new Address's "Postal Code" to "85719"
+    And I set a new Address's "Country" to "UNITED STATES"
+    And I set a new Address's "Set as Default Address" to "Yes"
+    And I add that "Vendor Address" and wait
+    And I set the first Vendor Address as the campus default for "MC - Main Campus"
+    And I add that Default Address and wait
+    And I set the new "Arizona Sales Tax License Number" to "123456789AB"
     And I click "route" and wait
     And I click "yes" and wait
     Then I should see "Document was successfully submitted."
@@ -45,13 +45,13 @@ Feature: KFSI-4479
     When I click the "Vendor" portal link
     And I click "create new"
     And I set "documentDescription" in the "documentHeader" to something like "testing: KFSI-4479"
-    And I set the new "vendorName" to "KFSI-4479 #{4i}"
-    And I set the new "vendorHeader.vendorTypeCode" to "Purchase Order"
-    And I set the new "vendorHeader.vendorTaxNumber" to "123456789"
-    And I set the new "vendorHeader.vendorTaxTypeCode" radio to "SSN"
-    And I set the new "vendorHeader.vendorOwnershipCode" to "INDIVIDUAL/SOLE PROPRIETOR"
-    And I set the new "extension.conflictOfInterest" to "None"
-    And I set the new "extension.defaultB2BPaymentMethodCode" to "A - ACH/Check"
+    And I set the new "Vendor Name" to "KFSI-4479 #{4i}"
+    And I set the new "Vendor Type" to "Purchase Order"
+    And I set the new "Tax Number" to "99#{5i}99"
+    And I set the new "Tax Number Type" radio to "SSN"
+    And I set the new "Ownership Type" to "INDIVIDUAL/SOLE PROPRIETOR"
+    And I set the new "Conflict of Interest" to "None"
+    And I set the new "Default Payment Method" to "A - ACH/Check"
     And I fill out a new vendorAddress with the following:
       | vendorAddressTypeCode         | PURCHASE ORDER |
       | vendorLine1Address            | 123 Main St.   |
@@ -60,10 +60,10 @@ Feature: KFSI-4479
       | vendorZipCode                 | 85719          |
       | vendorCountryCode             | UNITED STATES  |
       | vendorDefaultAddressIndicator | Yes            |
-    And I add that vendorAddress and wait
-    And I set the first vendorAddress's additional vendorDefaultAddress's "vendorCampusCode" to "MC - Main Campus"
-    And I add that first vendorAddress's vendorDefaultAddress and wait
-    And I set the new "extension.azSalesTaxLicense" to "123456789AB"
+    And I add that "Vendor Address" and wait
+    And I set the first Vendor Address as the campus default for "MC - Main Campus"
+    And I add that Default Address and wait
+    And I set the new "Arizona Sales Tax License Number" to "123456789AB"
     And I click "route" and wait
     And I click "yes" and wait
     Then I should see "Document was successfully submitted."
@@ -78,18 +78,18 @@ Feature: KFSI-4479
     When I click the "Vendor" portal link
     And I click "create new"
     And I set "documentDescription" in the "documentHeader" to something like "testing: KFSI-4479"
-    And I set the new "vendorName" to "KFSI-4479 #{4i}"
-    And I set the new "vendorHeader.vendorTypeCode" to "Purchase Order"
-    And I set the new "vendorHeader.vendorTaxNumber" to "123456789"
-    And I set the new "vendorHeader.vendorTaxTypeCode" radio to "SSN"
-    And I set the new "vendorHeader.vendorOwnershipCode" to "INDIVIDUAL/SOLE PROPRIETOR"
-    And I set the new "extension.conflictOfInterest" to "None"
-    And I set the new "extension.defaultB2BPaymentMethodCode" to "A - ACH/Check"
-    And I fill out a new vendorAddress with default values
-    And I add that vendorAddress and wait
-    And I fill out the first vendorAddress's new vendorDefaultAddress with default values
-    And I add that first vendorAddress's vendorDefaultAddress and wait
-    And I set the new "extension.azSalesTaxLicense" to "123456789AB"
+    And I set the new "Vendor Name" to "KFSI-4479 #{4i}"
+    And I set the new "Vendor Type" to "Purchase Order"
+    And I set the new "Tax Number" to "99#{5i}99"
+    And I set the new "Tax Number Type" radio to "SSN"
+    And I set the new "Ownership Type" to "INDIVIDUAL/SOLE PROPRIETOR"
+    And I set the new "Conflict of Interest" to "None"
+    And I set the new "Default Payment Method" to "A - ACH/Check"
+    And I fill out a new Vendor Address with default values
+    And I add that "Vendor Address" and wait
+    And I set the first Vendor Address as the campus default for "MC - Main Campus"
+    And I add that Default Address and wait
+    And I set the new "Arizona Sales Tax License Number" to "123456789AB"
     And I click "route" and wait
     And I click "yes" and wait
     Then I should see "Document was successfully submitted."

@@ -19,7 +19,6 @@ Feature: KFSI-5730
     And I set the new "Ownership Type" to "INDIVIDUAL/SOLE PROPRIETOR"
     And I set the new "Conflict of Interest" to "None"
     And I set the new "Default Payment Method" to "A - ACH/Check"
-    And I fill out a new Vendor Address with default values
     And I fill out a new Vendor Address with the following:
       | vendorAddressTypeCode         | PURCHASE ORDER |
       | vendorLine1Address            | 123 Main St.   |
@@ -28,6 +27,7 @@ Feature: KFSI-5730
       | vendorZipCode                 | 85719          |
       | vendorCountryCode             | UNITED STATES  |
       | vendorDefaultAddressIndicator | Yes            |
+    And I add that "Vendor Address" and wait
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
     And I click "route" and wait
@@ -57,7 +57,6 @@ Feature: KFSI-5730
     And I set the new "Ownership Type" to "INDIVIDUAL/SOLE PROPRIETOR"
     And I set the new "Conflict of Interest" to "None"
     And I set the new "Default Payment Method" to "A - ACH/Check"
-    And I fill out a new Vendor Address with default values
     And I fill out a new Vendor Address with the following:
       | vendorAddressTypeCode         | REMIT         |
       | vendorLine1Address            | 123 Main St.  |
@@ -66,6 +65,7 @@ Feature: KFSI-5730
       | vendorZipCode                 | 85719         |
       | vendorCountryCode             | UNITED STATES |
       | vendorDefaultAddressIndicator | Yes           |
+    And I add that "Vendor Address" and wait
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
     And I click "route" and wait
@@ -73,7 +73,7 @@ Feature: KFSI-5730
     Then I should see "Document was successfully submitted."
     When I record this document number
     And I am up top
-    And I backdoor as "kfs-test-sec50"
+    And I backdoor as "kfs-test-sec36"
     And I open my Action List, refreshing until that document appears
     And I open that document
     And I click "disapprove" with reason "Don't leave a doc hanging." and wait
