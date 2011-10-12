@@ -22,7 +22,7 @@ class KaikiFS::Driver
   ENVS_FILE = "envs.json"
   SCREEN_SHOT_DIR = File.join(File.dirname(__FILE__), '..', '..', 'public', 'images')
   extend Forwardable
-  def_delegators :@selenium_driver, :click, :get_text, :stop, :wait_for_text, :window_maximize
+  def_delegators :@selenium_driver, :check, :click, :get_text, :stop, :uncheck, :wait_for_text, :window_maximize
 
   def initialize(username, password, options={})
     @username = username
@@ -56,7 +56,8 @@ class KaikiFS::Driver
 
   ##### THIN WRAPPERS
   def hide_tab(name)
-    page.click "tab-#{name}-imageToggle"
+    #page.click "tab-#{name}-imageToggle"
+    page.click "//input[@title='close #{name}']"
   end
 
   def show_tab(name)
