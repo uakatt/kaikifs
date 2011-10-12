@@ -56,12 +56,10 @@ class KaikiFS::Driver
 
   ##### THIN WRAPPERS
   def hide_tab(name)
-    #page.click "tab-#{name}-imageToggle"
     page.click "//input[@title='close #{name}']"
   end
 
   def show_tab(name)
-    #page.click "tab-#{name}-imageToggle"
     page.click "//input[@title='open #{name}']"
   end
 
