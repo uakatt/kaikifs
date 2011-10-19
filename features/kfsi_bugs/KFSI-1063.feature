@@ -26,8 +26,8 @@ Feature: KFSI-1063
     And I set the new "Search Alias Name" to "KFSI-1063 Alias #{4i}"
     And I uncheck the "Active Indicator" for the new "Search Alias"
     And I add that "Search Alias" and wait
-    And I click "route" and wait
-    And I click "yes" and wait
+    And I click "submit"
+    And I click "yes"
     Then I should see "Document was successfully submitted."
     When I record this document number
     And I record this "Vendor Name"
@@ -35,13 +35,13 @@ Feature: KFSI-1063
     And I backdoor as "kfs-test-sec50"
     And I open my Action List, refreshing until that document appears
     And I open that document
-    And I click "approve" and wait
-    And I click "yes" and wait
+    And I click "approve"
+    And I click "yes"
     And I backdoor as "kfs-test-sec32"
     And I am on the "main_menu" tab
     And I click the "Vendor" portal link
     And I set the "Vendor Name" to that one
-    And I click "search" and wait
+    And I click "search"
     And I edit the first one
     And I click "hide inactive" under Search Alias
     Then I shouldn't get an HTTP Status 500

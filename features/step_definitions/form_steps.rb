@@ -12,7 +12,7 @@ When /^I set the "([^"]*)" to "([^"]*)"$/ do |field, value|
       # The following appear on lookups like the Person Lookup. Like Group > create new > Assignee Lookup (find a shorter path to Person Lookup)
       "//th/label[contains(text(), '#{field}')]/../following-sibling::td/input[1]",
       "//th/div[contains(text(), '#{field}')]/../following-sibling::td/input[1]",
-      "//th/div[contains(text([1]), '#{field}')]/../following-sibling::td/input[1]",
+      "//th/div[contains(text()[1], '#{field}')]/../following-sibling::td/input[1]",
       "//th/div[contains(text()[2], '#{field}')]/../following-sibling::td/input[1]"
     ],
     #ApproximationsFactory.build(
@@ -47,6 +47,7 @@ When /^I set the "([^"]*)" to "([^"]*)" and wait$/ do |field, value|
   kaikifs.wait_for_page_to_load
 end
 
+# WD
 When /^I set the "([^"]*)" to something like "([^"]*)"$/ do |field, value|
   value = value + ' ' + Time.now.strftime("%Y%m%d%H%M%S")
   kaikifs.set_approximate_field(
@@ -66,6 +67,7 @@ When /^I set the "([^"]*)" to something like "([^"]*)"$/ do |field, value|
     value)
 end
 
+# WD
 # For example, Vendor > create new; the Vendor Name through Default Payment Method fields
 When /^I set the new "([^"]*)" to "([^"]*)"$/ do |field, value|
 
@@ -121,27 +123,6 @@ When /^I set a new ([^']*)'s "([^"]*)" to "([^"]*)"$/ do |tab, field, value|
     value)
 end
 
-# OLD SCHOOL
-When /^I set "([^"]*)" to "([^"]*)"$/ do |field, value|
-  kaikifs.set_field(field, value)
-end
-
-# OLD SCHOOL
-When /^I set "([^"]*)" in the "([^"]*)" to "([^"]*)"$/ do |field, area, value|
-  if area == "documentHeader"
-    kaikifs.set_field("document.#{area}.#{field}", value)
-    sleep 4
-  end
-end
-
-# OLD SCHOOL
-When /^I set "([^"]*)" in the "([^"]*)" to something like "([^"]*)"$/ do |field, area, value|
-  if area == "documentHeader"
-    kaikifs.set_field("document.#{area}.#{field}", "#{value} #{Time.now}")
-    sleep 4
-  end
-end
-
 When /^I set the new "([^"]*)" to something like "([^"]*)"$/ do |field, value|
   kaikifs.set_field("document.newMaintainableObject."+field, "#{value} #{Time.now.to_i}")
 end
@@ -151,45 +132,33 @@ When /^I (check|uncheck) the "([^"]*)" for the new "([^"]*)"$/ do |check, field,
         when child == 'Search Alias' then 'tab-SearchAlias-div'
         else                              "tab-#{child.pluralize}-div"
         end
-  xpath = "xpath=//*[@id='#{div}']//th/label[contains(text(), '#{field}') and contains(@id, '.newMaintainableObject.')]/../following-sibling::td/input[1]"
-  kaikifs.send(check.to_sym, xpath)
+  xpath = "//*[@id='#{div}']//th/label[contains(text(), '#{field}') and contains(@id, '.newMaintainableObject.')]/../following-sibling::td/input[1]"
+  kaikifs.send(check.to_sym, :xpath, xpath)
 end
 
-# DEPRECATED
-# "an additional" means 'document.newMaintainableObject.add'
-When /^I set an additional vendorAddress's "([^"]*)" to "([^"]*)"$/ do |field, value|
-    childCollection = "vendorAddresses"  # document.newMaintainableObject.add.vendorAddresses.vendorLine1Address
-    kaikifs.set_field("document.newMaintainableObject.add.#{childCollection}."+field, value)
-end
-
+# WD
 When /^I add that "([^"]*)" and wait$/ do |child|
-  addButton = case
-    when child =~ /Vendor Address|vendorAddress/  # A new vendor fieldset has no id.
-      'methodToCall.addLine.vendorAddresses.(!!org.kuali.kfs.vnd.businessobject.VendorAddress!!)'
-    else
-      div =
-        case
-        when child == 'Search Alias' then 'tab-SearchAlias-div'
-        else                              "tab-#{child.pluralize}-div"
-        end
-      # click the (only) add button in the right tab. Example: Group > create new > Assignees
-      # hard-coding add1.gif until we need another image. I don't just want to rely on 'add' yet...
+  case
+  when child =~ /Vendor Address|vendorAddress/  # A new vendor fieldset has no id.
+    kaikifs.click_and_wait :id, 'methodToCall.addLine.vendorAddresses.(!!org.kuali.kfs.vnd.businessobject.VendorAddress!!)'
+  else
+    div =
       case
-      # The first 'input[contains(@src, 'add1.gif')] is the hidden 'import lines' add button.
-      when child == 'Item' then "xpath=//div[@id='#{div}']//input[@title='Add an Item']"
-      else                      "xpath=//div[@id='#{div}']//input[contains(@src, 'add1.gif')]"
+      when child == 'Search Alias' then 'tab-SearchAlias-div'
+      else                              "tab-#{child.pluralize}-div"
       end
-    end
-  kaikifs.click_and_wait addButton
+
+    # click the (only) add button in the right tab. Example: Group > create new > Assignees
+    # hard-coding add1.gif until we need another image. I don't just want to rely on 'add' yet...
+    add_button = case
+      # The first 'input[contains(@src, 'add1.gif')] is the hidden 'import lines' add button.
+      when child == 'Item' then "//div[@id='#{div}']//input[@title='Add an Item']"
+      else                      "//div[@id='#{div}']//input[contains(@src, 'add1.gif')]"
+      end
+    kaikifs.click_and_wait :xpath, add_button
+  end
 end
 
-# DEPRECATED
-When /^I set the first (\S+)'s additional (\S+)'s "([^"]*)" to "([^"]*)"$/ do |child, childsChild, field, value|
-  childElement = "#{child}es[0]"
-  childElementsChild = "#{childsChild}es"
-  # document.newMaintainableObject.add.vendorAddresses[0].vendorDefaultAddresses.vendorCampusCode
-  kaikifs.set_field("document.newMaintainableObject.add.#{childElement}.#{childElementsChild}.#{field}", value)
-end
 
 When /^I set the first Vendor Address as the campus default for "([^"]*)"$/ do |value|
   kaikifs.set_field("document.newMaintainableObject.add.vendorAddresses[0].vendorDefaultAddresses.vendorCampusCode", value)
@@ -198,17 +167,10 @@ end
 
 When /^I add that Default Address and wait/i do
   vendor_address = kaikifs.record['current_vendor_address']
-  kaikifs.click_and_wait "methodToCall.addLine.#{vendor_address}.vendorDefaultAddresses.(!!org.kuali.kfs.vnd.businessobject.VendorDefaultAddress!!)"
+  kaikifs.click_and_wait :id, "methodToCall.addLine.#{vendor_address}.vendorDefaultAddresses.(!!org.kuali.kfs.vnd.businessobject.VendorDefaultAddress!!)"
 end
 
-#DEPRECATED
-When /^I add that first (\S+)'s (\S+) and wait$/ do |child, childsChild|
-  addButton = case child
-    when 'vendorAddress' then "methodToCall.addLine.vendorAddresses[0].#{childsChild.pluralize}.(!!org.kuali.kfs.vnd.businessobject.#{childsChild.camelize}!!)"
-    end
-  kaikifs.click_and_wait addButton
-end
-
+# WD
 When /^I fill out a new (?:Vendor Address|vendorAddress) with default values$/ do
   prefix = "document.newMaintainableObject.add.vendorAddresses."
   kaikifs.set_field(prefix+'vendorAddressTypeCode', 'PURCHASE ORDER')

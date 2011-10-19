@@ -23,13 +23,12 @@ Feature: KFSI-4479
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
     And I set the new "Arizona Sales Tax License Number" to "123456789AB"
-    And I click "route" and wait
-    And I click "yes" and wait
+    And I click "submit"
+    And I click "yes"
     Then I should see "Document was successfully submitted."
     And I should see "123456789AB"
     When I record this document number
-    And I am up top
     And I backdoor as "kfs-test-sec50"
     And I open my Action List, refreshing until that document appears
     And I open that document
-    And I click "disapprove" with reason "Don't leave a doc hanging." and wait
+    And I click "disapprove" with reason "Don't leave a doc hanging."

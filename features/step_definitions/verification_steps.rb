@@ -2,6 +2,12 @@ Then /^I should see "([^"]*)"$/ do |text|
   kaikifs.is_text_present(text).should == true
 end
 
+# WD
+Then /^I should see the message "([^"]*)"$/ do |text|
+  kaikifs.wait_for(:xpath, "//div[@class='msg-excol']")
+  kaikifs.is_text_present(text, "//div[@class='msg-excol']/div/div").should == true
+end
+
 Then /^I should see "([^"]*)" in the "([^"]*)" iframe$/ do |text, frame|
   kaikifs.select_frame(frame+"IFrame")
   kaikifs.is_text_present(text).should == true

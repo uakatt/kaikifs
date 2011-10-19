@@ -1,11 +1,11 @@
 When /^I record this document number$/ do
-  doc_nbr = kaikifs.get_text("xpath=//th[contains(text(), 'Doc Nbr')]/following-sibling::td").strip
+  doc_nbr = kaikifs.find_element(:xpath, "//th[contains(text(), 'Doc Nbr')]/following-sibling::td").text.strip
   kaikifs.record[:document_number] = doc_nbr
   puts doc_nbr
 end
 
 When /^I record this "([^"]*)"$/ do |field|
-  value = kaikifs.get_text("xpath=//th[contains(text(), 'Vendor Name')]/following-sibling::*").strip
+  value = kaikifs.find_element(:xpath, "//th[contains(text(), 'Vendor Name')]/following-sibling::*").text.strip
   kaikifs.record[field] = value.strip
   puts "#{field} = #{value}"
 end
