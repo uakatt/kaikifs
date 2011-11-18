@@ -26,7 +26,7 @@ Feature: KFSI-5772
       | Postal Code            | 85719         |
       | Country                | UNITED STATES |
       | Set as Default Address | Yes           |
-    And I add that "Vendor Address" and wait
+    And I add that "Vendor Address"
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
     And I click "route" and wait

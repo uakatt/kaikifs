@@ -19,7 +19,7 @@ Feature: KFSI-4479
     And I set the new "Conflict of Interest" to "None"
     And I set the new "Default Payment Method" to "A - ACH/Check"
     And I fill out a new Vendor Address with default values
-    And I add that "Vendor Address" and wait
+    And I add that "Vendor Address"
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
     And I set the new "Arizona Sales Tax License Number" to "123456789AB"

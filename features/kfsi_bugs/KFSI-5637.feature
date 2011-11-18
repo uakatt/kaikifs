@@ -10,44 +10,47 @@ Feature: KFSI-5637
     When I open a doc search
     And I start a lookup for "Initiator"
     And I set the "First Name" to "Sam\"
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam^"
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam["
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam."
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam$"
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam{"
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam*"
-    And I click "search" and wait
+    And I click "search"
+    Then I shouldn't see an incident report
+    When I set the "First Name" to "*Sam**"
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam("
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam+"
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam)"
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam|"
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam?"
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam<"
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     When I set the "First Name" to "Sam>"
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report

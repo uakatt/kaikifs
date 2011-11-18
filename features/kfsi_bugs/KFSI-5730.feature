@@ -8,7 +8,6 @@ Feature: KFSI-5730
 
     Given I am logged in
     And I am on the "main_menu" tab
-    And I am fast
     When I click the "Vendor" portal link
     And I click "create new"
     And I set the "Description" to something like "testing: KFSI-5730"
@@ -27,26 +26,23 @@ Feature: KFSI-5730
       | vendorZipCode                 | 85719          |
       | vendorCountryCode             | UNITED STATES  |
       | vendorDefaultAddressIndicator | Yes            |
-    And I add that "Vendor Address" and wait
+    And I add that "Vendor Address"
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
-    And I click "route" and wait
-    And I click "yes" and wait
+    And I click "submit"
+    And I click "yes"
     Then I should see "Document was successfully submitted."
     When I record this document number
-    And I am up top
     And I backdoor as "kfs-test-sec50"
     And I open my Action List, refreshing until that document appears
     And I open that document
-    And I click "disapprove" with reason "Don't leave a doc hanging." and wait
-    #Then?
+    And I click "disapprove" with reason "Don't leave a doc hanging."
 
   @jira @blocker
   Scenario: A DV vendor can be created.
 
     Given I am logged in
     And I am on the "main_menu" tab
-    And I am fast
     When I click the "Vendor" portal link
     And I click "create new"
     And I set the "Description" to something like "testing: KFSI-5730"
@@ -65,16 +61,14 @@ Feature: KFSI-5730
       | vendorZipCode                 | 85719         |
       | vendorCountryCode             | UNITED STATES |
       | vendorDefaultAddressIndicator | Yes           |
-    And I add that "Vendor Address" and wait
+    And I add that "Vendor Address"
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
-    And I click "route" and wait
-    And I click "yes" and wait
+    And I click "submit"
+    And I click "yes"
     Then I should see "Document was successfully submitted."
     When I record this document number
-    And I am up top
     And I backdoor as "kfs-test-sec36"
     And I open my Action List, refreshing until that document appears
     And I open that document
-    And I click "disapprove" with reason "Don't leave a doc hanging." and wait
-    #Then?
+    And I click "disapprove" with reason "Don't leave a doc hanging."

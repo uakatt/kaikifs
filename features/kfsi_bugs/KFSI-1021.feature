@@ -19,7 +19,7 @@ Feature: KFSI-1021
     And I set the new "Conflict of Interest" to "None"
     And I set the new "Default Payment Method" to "A - ACH/Check"
     And I fill out a new Vendor Address with default values
-    And I add that "Vendor Address" and wait
+    And I add that "Vendor Address"
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
     And I click "submit"
@@ -49,7 +49,7 @@ Feature: KFSI-1021
     And I click "search"
     And I return with the first result
     And I fill out a new Item with default values
-    And I add that "Item" and wait
+    And I add that "Item"
     And I set the "Requestor Phone" to "345-876-6589"
     And I set the "Requestor Email" to "kfs-test-sec19@email.arizona.edu"
     And I click "calculate"

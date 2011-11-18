@@ -1,0 +1,167 @@
+Requisition
+  Description: XXX
+  check "Receiving Required"
+  Building: 10
+  Room: 0001
+  Suggested Vendor Lookup:
+	Vendor Name: Micron
+	Return with first result
+  Add Item:
+    QUANTITY TAXABLE
+    Quantity: 1
+    UOM: ea
+    Description: XXX
+    Unit Cost: 1000
+  First Item: show accounting lines
+  First Item Accounting Lines
+    Chart: UA
+    Account Number: 1080000
+    Object: 5230
+    Percent: 100
+  click "calculate"
+  click "submit"
+
+backdoor as kdenman
+open action list
+  open last  (GO TO THE LAST PAGE) (a link-text = 'Last')
+  click "approve"
+
+backdoor as kfs-test-sec40
+Contract Manager Assignment
+  Under Assign A Contract Manager, find the Vendor Name and General Description we used (MAY NEED TO RELOAD)
+  Contract Manager: 10
+  click "submit"
+doc search
+  click "search"
+  open first
+  Under Vendor, then Vendor Info:
+    Vendor Choice: Other
+  click "calculate"
+  click "submit"
+
+backdoor as kfs-test-sec52
+open doc search
+  click "search"
+  open first
+  click "approve"
+
+backdoor as kfs-test-sec40
+open doc search
+  click "search"
+  open first
+  remember the Purchase Order #
+  click "print"  AUTO SAVE???
+
+backdoor as kfs-test-sec36
+open Central Admin tab
+open Payment Request
+  Purchase Order: the remembered one
+  Invoice Date: today (mm/dd/yyyy)
+  Invoice Number: xxxxx (unique)
+  Vendor Invoice Amount: 1000
+  continue
+  (if blows up, do it again)
+  Under Invoice Info
+    check Immediate Pay (id, name: document.immediatePaymentIndicator, title: Immediate Payment Indicator)
+  Under Process Items, Items, Item Line # 1
+    Qty Invoiced: 1
+  click "calculate"
+  click "submit"
+open Main Menu tab
+open Receiving
+  Purchase Order #: the remembered one
+  Vendor Date: today (mm/dd/yyyy)
+  click "continue"
+  Under Items, Receiving Line Items, Line # 1
+    Qty Received: 1
+  click "submit"
+
+Batch JOBSSSSSSS
+logged in as me
+open Administration tab
+open Schedule
+  Job Name: receivingPaymentRequestJob
+  Modify the first result
+  run
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The PaymentRequestItem changes (version) around DocumentDaoOjb.save() methinks. This is also where a second PaymentRequestItemUseTax is added:
+
+BEFORE:
+>> item = preq_items_for(preq).first; pp item
+:UNT_PRC_OVRG_IND @values={:itemIdentifier=>1735, :objectId=>"1C0FA8D8-5E11-0B76-F9ED-697CC8333EE0", :versionNumber=>5, :purapDocumentIdentifier=>1402, :itemLineNumber=>1, :itemTypeCode=>"ITEM", :itemDescription=>"Wifget", :itemCatalogNumber=>nil, :itemAuxiliaryPartIdentifier=>nil, :itemUnitOfMeasureCode=>"EA", :itemQuantity=>1.0, :itemUnitPrice=>#<BigDecimal:7cae930,'0.1E4',9(18)>, :purchaseOrderItemUnitPrice=>#<BigDecimal:7cae868,'0.1E4',9(18)>, :extendedPrice=>#<BigDecimal:7cae7c8,'0.1E4',9(18)>, :capitalAssetTransactionTypeCode=>nil, :ITM_CPTL_AST_NTE_TXT=>nil, :itemAssignedToTradeInIndicator=>"N", :itemOutstandingInvoiceQuantity=>nil, :itemOutstandingInvoiceAmount=>nil, :itemSalesTaxAmount=>nil, :UNT_PRC_OVRG_IND=>"N"}>
+=> nil
+>> preq_items_use_tax_for(item).each {|iut| pp iut}
+:financialObjectCode @values={:useTaxId=>1393, :objectId=>"C38F7AC8-611A-A4DB-CEB9-76EF304F788E", :versionNumber=>4, :itemIdentifier=>1735, :rateCode=>"ARIZONAUSE", :taxAmount=>#<BigDecimal:7c88ff0,'0.66E2',9(18)>, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>
+=> #<Sequel::Oracle::Dataset: "SELECT * FROM \"AP_PMT_RQST_ITM_USE_TAX_T\" WHERE (\"PMT_RQST_ITM_ID\" = 1735)">
+
+AFTER:
+>> item = preq_items_for(preq).first; pp item
+:UNT_PRC_OVRG_IND @values={:itemIdentifier=>1735, :objectId=>"1C0FA8D8-5E11-0B76-F9ED-697CC8333EE0", :versionNumber=>6, :purapDocumentIdentifier=>1402, :itemLineNumber=>1, :itemTypeCode=>"ITEM", :itemDescription=>"Wifget", :itemCatalogNumber=>nil, :itemAuxiliaryPartIdentifier=>nil, :itemUnitOfMeasureCode=>"EA", :itemQuantity=>1.0, :itemUnitPrice=>#<BigDecimal:7c64d80,'0.1E4',9(18)>, :purchaseOrderItemUnitPrice=>#<BigDecimal:7c64c90,'0.1E4',9(18)>, :extendedPrice=>#<BigDecimal:7c64bf0,'0.1E4',9(18)>, :capitalAssetTransactionTypeCode=>nil, :ITM_CPTL_AST_NTE_TXT=>nil, :itemAssignedToTradeInIndicator=>"N", :itemOutstandingInvoiceQuantity=>nil, :itemOutstandingInvoiceAmount=>nil, :itemSalesTaxAmount=>nil, :UNT_PRC_OVRG_IND=>"N"}>
+=> nil
+>> preq_items_use_tax_for(item).each {|iut| pp iut}
+:financialObjectCode @values={:useTaxId=>1393, :objectId=>"C38F7AC8-611A-A4DB-CEB9-76EF304F788E", :versionNumber=>4, :itemIdentifier=>1735, :rateCode=>"ARIZONAUSE", :taxAmount=>#<BigDecimal:7c28100,'0.66E2',9(18)>, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>
+:financialObjectCode @values={:useTaxId=>1394, :objectId=>"AB0AC44F-7ECC-3F15-300F-59DAE3A2AFC8", :versionNumber=>1, :itemIdentifier=>1735, :rateCode=>"ARIZONAUSE", :taxAmount=>#<BigDecimal:7c21120,'0.66E2',9(18)>, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>
+=> #<Sequel::Oracle::Dataset: "SELECT * FROM \"AP_PMT_RQST_ITM_USE_TAX_T\" WHERE (\"PMT_RQST_ITM_ID\" = 1735)">
+
+Then, I believe in cleansing, in OjbCollectionHelper.processCollections(), we bump up all of those versions:
+
+>> item = preq_items_for(preq).first; pp item
+:UNT_PRC_OVRG_IND @values={:itemIdentifier=>1735, :objectId=>"1C0FA8D8-5E11-0B76-F9ED-697CC8333EE0", :versionNumber=>8, :purapDocumentIdentifier=>1402, :itemLineNumber=>1, :itemTypeCode=>"ITEM", :itemDescription=>"Wifget", :itemCatalogNumber=>nil, :itemAuxiliaryPartIdentifier=>nil, :itemUnitOfMeasureCode=>"EA", :itemQuantity=>1.0, :itemUnitPrice=>#<BigDecimal:7244e18,'0.1E4',9(18)>, :purchaseOrderItemUnitPrice=>#<BigDecimal:7244c38,'0.1E4',9(18)>, :extendedPrice=>#<BigDecimal:72449b8,'0.1E4',9(18)>, :capitalAssetTransactionTypeCode=>nil, :ITM_CPTL_AST_NTE_TXT=>nil, :itemAssignedToTradeInIndicator=>"N", :itemOutstandingInvoiceQuantity=>nil, :itemOutstandingInvoiceAmount=>nil, :itemSalesTaxAmount=>nil, :UNT_PRC_OVRG_IND=>"N"}>
+=> nil
+>> preq_items_use_tax_for(item).each {|iut| pp iut}
+:financialObjectCode @values={:useTaxId=>1393, :objectId=>"C38F7AC8-611A-A4DB-CEB9-76EF304F788E", :versionNumber=>6, :itemIdentifier=>1735, :rateCode=>"ARIZONAUSE", :taxAmount=>#<BigDecimal:71efda0,'0.66E2',9(18)>, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>
+:financialObjectCode @values={:useTaxId=>1394, :objectId=>"AB0AC44F-7ECC-3F15-300F-59DAE3A2AFC8", :versionNumber=>3, :itemIdentifier=>1735, :rateCode=>"ARIZONAUSE", :taxAmount=>#<BigDecimal:71dc980,'0.66E2',9(18)>, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>
+=> #<Sequel::Oracle::Dataset: "SELECT * FROM \"AP_PMT_RQST_ITM_USE_TAX_T\" WHERE (\"PMT_RQST_ITM_ID\" = 1735)">
+
+
+
+
+Recreate again:
+
+On one of the findByDocumentHeaderIds() line 99 clicks, the Preq Item jumped:
+
+BEFORE
+>> pp preq_items_for(preq).first
+#<PaymentRequestItem @values={:itemIdentifier=>1821, :objectId=>"41EAC069-6E66-E84F-1171-82EA6F3594C5", :versionNumber=>5, :purapDocumentIdentifier=>1401, :itemLineNumber=>1, :itemTypeCode=>"ITEM", :itemDescription=>"a 5460 widget", :itemUnitOfMeasureCode=>"EA", :itemQuantity=>1.0, :itemUnitPrice=>1000.0, :purchaseOrderItemUnitPrice=>1000.0, :extendedPrice=>1000.0, :itemAssignedToTradeInIndicator=>"N", :UNT_PRC_OVRG_IND=>"N"}>
+
+AFTER
+>> pp preq_items_for(preq).first
+#<PaymentRequestItem @values={:itemIdentifier=>1821, :objectId=>"41EAC069-6E66-E84F-1171-82EA6F3594C5", :versionNumber=>6, :purapDocumentIdentifier=>1401, :itemLineNumber=>1, :itemTypeCode=>"ITEM", :itemDescription=>"a 5460 widget", :itemUnitOfMeasureCode=>"EA", :itemQuantity=>1.0, :itemUnitPrice=>1000.0, :purchaseOrderItemUnitPrice=>1000.0, :extendedPrice=>1000.0, :itemAssignedToTradeInIndicator=>"N", :UNT_PRC_OVRG_IND=>"N"}>
+
+
+LATER
+
+processCollections is called, with (null, orig=document, copy=retreivedDocument)   document and retreivedDocument both have proxied items.
+
+originalCollections becomes 3 items. The second is List of PaymentRequestItems. One entry here, with a populated item, but a proxied useTaxItems.
+copyCollections     becomes 3 items. The second is List of PaymentRequestItems. One entry here, with a populated item, but a proxied useTaxItems.
+On line 63, list    becomes an empty List
+
+LATER
+
+save, aboute to call processCollections(), has a document with actual  PaymentRequestItems. There are TWO of them!
+                                  has a retreivedDocument with proxied PaymentRequestItems.
+
+>> pp preq_items_for(preq).first.useTaxItems
+[#<PaymentRequestItemUseTax @values={:useTaxId=>1421, :objectId=>"C2DED1A4-0164-DE3C-F1C7-1BACFCA981B9", :versionNumber=>4, :itemIdentifier=>1821, :rateCode=>"ARIZONAUSE", :taxAmount=>66.0, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>, #<PaymentRequestItemUseTax @values={:useTaxId=>1422, :objectId=>"D4E7EF79-DA6F-7A91-C654-254C32766A93", :versionNumber=>1, :itemIdentifier=>1821, :rateCode=>"ARIZONAUSE", :taxAmount=>66.0, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>]
+
+LATER
+
+>> pp preq_items_for(preq).first
+#<PaymentRequestItem @values={:itemIdentifier=>1821, :objectId=>"41EAC069-6E66-E84F-1171-82EA6F3594C5", :versionNumber=>8, :purapDocumentIdentifier=>1401, :itemLineNumber=>1, :itemTypeCode=>"ITEM", :itemDescription=>"a 5460 widget", :itemUnitOfMeasureCode=>"EA", :itemQuantity=>1.0, :itemUnitPrice=>1000.0, :purchaseOrderItemUnitPrice=>1000.0, :extendedPrice=>1000.0, :itemAssignedToTradeInIndicator=>"N", :UNT_PRC_OVRG_IND=>"N"}>
+
+>> pp preq_items_for(preq).first.useTaxItems
+[#<PaymentRequestItemUseTax @values={:useTaxId=>1421, :objectId=>"C2DED1A4-0164-DE3C-F1C7-1BACFCA981B9", :versionNumber=>6, :itemIdentifier=>1821, :rateCode=>"ARIZONAUSE", :taxAmount=>66.0, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>, #<PaymentRequestItemUseTax @values={:useTaxId=>1422, :objectId=>"D4E7EF79-DA6F-7A91-C654-254C32766A93", :versionNumber=>3, :itemIdentifier=>1821, :rateCode=>"ARIZONAUSE", :taxAmount=>66.0, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>]

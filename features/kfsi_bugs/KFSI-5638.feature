@@ -9,6 +9,6 @@ Feature: KFSI-5638
     Given I am logged in
     And I am on the "central_admin" tab
     When I click the "Asset Retirement Global" portal link
-    And I click "search" and wait
+    And I click "search"
     Then I shouldn't see an incident report
     And I shouldn't get an HTTP Status 500

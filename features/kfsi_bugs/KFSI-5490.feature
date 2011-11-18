@@ -10,8 +10,8 @@ Feature: KFSI-5490
     And I am on the "main_menu" tab
     When I click the "Vendor" portal link
     And I click "create new"
-    And I click "cancel" and wait
-    And I click "yes" and wait
+    And I click "cancel"
+    And I click "yes"
     Then I shouldn't get an HTTP Status 500
     And I shouldn't see an incident report
 
