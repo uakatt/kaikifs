@@ -5,7 +5,7 @@ When /^I record this document number$/ do
 end
 
 When /^I record this "([^"]*)"$/ do |field|
-  value = kaikifs.find_element(:xpath, "//th[contains(text(), 'Vendor Name')]/following-sibling::*").text.strip
+  value = kaikifs.find_element(:xpath, "//th[contains(text(), '#{field}')]/following-sibling::*").text.strip
   kaikifs.record[field] = value.strip
   puts "#{field} = #{value}"
 end
@@ -25,4 +25,34 @@ end
 
 When /^I save a screenshot as "([^"]*)"$/ do |name|
   kaikifs.screenshot(name.file_safe + '_' + Time.now.strftime("%Y%m%d%H%M%S"))
+end
+
+# Highlights a button based on its name
+When /^I highlight the "([^"]*)" submit button$/ do |action|
+    kaikifs.highlight :name, "methodToCall.#{action.gsub(/ /, '').camelize(:lower)}"
+end
+
+When /^I scroll to the image with alt text "([^"]*)"$/ do |text|
+  kaikifs.find_element(:xpath, "//*[@alt='#{text}']").location_once_scrolled_into_view
+end
+
+When /^I enlargen "([^"]*)"$/ do |text|
+  kaikifs.enlargen :xpath, "//*[contains(text(), '#{text}')]"
+end
+
+When /^I requeue all of the documents$/ do
+  kaikifs.record[:document_numbers].each do |document|
+    kaikifs.record[:document_number] = document
+    steps %{
+    And I set the "Document ID" to the given document number
+    And I click "get document"
+    And I highlight the "Queue Document Requeuer" submit button
+    And I sleep for "2" seconds
+    And I click the "Queue Document Requeuer" submit button
+    And I scroll to the image with alt text "Workflow"
+    Then I should see "Document Requeuer was successfully scheduled"
+    And I enlargen "Document Requeuer was successfully scheduled"
+    And I sleep for "5" seconds
+    }
+  end
 end

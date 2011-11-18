@@ -4,7 +4,12 @@ end
 
 When /^I show the "([^"]*)" tab$/ do |tab|
   kaikifs.show_tab tab
-  sleep 2
+end
+
+When /^I show the ([0-9a-z]+) Item's "([^"]*)"/i do |ordinal, tab|
+  numeral = EnglishNumbers::ORDINAL_TO_NUMERAL[ordinal]
+  xpath = "//td[contains(text(), 'Item #{numeral}')]/../following-sibling::tr//div[contains(text()[2], '#{tab}')]//input"
+  kaikifs.click_and_wait(:xpath, xpath)
 end
 
 # WD

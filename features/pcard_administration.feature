@@ -14,14 +14,14 @@ Feature: Pcard Maintenance
     And   I am on the "main_menu" tab
     When I click the "Group" portal link
     And I click "create new"
-    And I click "search" and wait
+    And I click "search"
     And I return the "Organization Group" one
-    And I set "documentDescription" in the "documentHeader" to something like "testing: PA1003-01"
-    And I set the "Group Namespace" to "KFS-FP - Financial Processing" and wait
+    And I set the "Description" to something like "testing: PA1003-01"
+    And I set the "Group Namespace" to "KFS-FP - Financial Processing"
     And I set the "Group Name" to something like "PA1003-01"
     And I set the "Chart Code" to "UA - University of Arizona-Management"
     And I set the "Organization Code" to "PCRD"
-    And I click "route" and wait
+    And I click "submit"
     And I show the "Route Log" tab
     Then I should see "ID:" in the "routeLog" iframe
     And  I should see "Actions Taken" in the "routeLog" iframe
@@ -30,11 +30,10 @@ Feature: Pcard Maintenance
     # In the functional scenario, the document should automatically go to final.
     # Now a member of "UA PACS PCard Administrators" must approve.
     When I record this document number
-    And I am up top
     And I backdoor as "kfs-test-sec19"
     And I open my Action List
     And I open that document
-    And I click "approve" and wait
+    And I click "approve"
     # Then I should verify something?
 
   @funky_test
@@ -46,10 +45,10 @@ Feature: Pcard Maintenance
     And   I am on the "main_menu" tab
     When I click the "Group" portal link
     And I click "create new"
-    And I click "search" and wait
+    And I click "search"
     And I return the "Organization Group" one
-    And I set "documentDescription" in the "documentHeader" to something like "testing: PA1003-02"
-    And I set the "Group Namespace" to "KFS-FP - Financial Processing" and wait
+    And I set the "Description" to something like "testing: PA1003-01"
+    And I set the "Group Namespace" to "KFS-FP - Financial Processing"
     And I set the "Group Name" to something like "PA1003-02"
     And I set the "Chart Code" to "UA - University of Arizona-Management"
     And I set the "Organization Code" to "PCRD"
@@ -57,10 +56,10 @@ Feature: Pcard Maintenance
     And I start a lookup for the new Assignee's "Member Identifier"
     And I set the "First Name" to "Samuel*"
     And I set the "Last Name" to "Rawlins"
-    And I click "search" and wait
+    And I click "search"
     And I return with the first result
-    And I add that Assignee and wait
-    And I click "route" and wait
+    And I add that "Assignee"
+    And I click "submit"
     And I show the "Route Log" tab
     Then I should see "ID:" in the "routeLog" iframe
     And  I should see "Actions Taken" in the "routeLog" iframe

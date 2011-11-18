@@ -18,7 +18,7 @@ Feature: Vendor Maintenance
     And I set the new "purchaseOrderCostSourceDescription" to "Kaiki"
     And I set the new "itemUnitPriceLowerVariancePercent" to "20"
     And I set the new "itemUnitPriceUpperVariancePercent" to "10"
-    And I click "route" and wait
+    And I click "submit"
     And I show the "Route Log" tab
     Then I should see "ID:" in the "routeLog" iframe
     And  I should see "Actions Taken" in the "routeLog" iframe
@@ -31,12 +31,12 @@ Feature: Vendor Maintenance
     Given I am backdoored as "kfs-test-sec32"
     And I am on the "maintenance" tab
     When I click the "Campus Parameter" portal link
-    And I click "search" and wait
+    And I click "search"
     And I edit the "Main Campus" one
     And I set "documentDescription" in the "documentHeader" to "testing: CFG003-PA04"
     And I hide the "DocumentOverview" tab
     And I set the new "active" to "false"
-    And I click "route" and wait
+    And I click "submit"
     Then I should see "Document was successfully submitted."
     When I show the "Route Log" tab
     Then I should see "ID:" in the "routeLog" iframe

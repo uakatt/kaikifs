@@ -16,6 +16,17 @@ When /^I open my Action List$/i do
 end
 
 # WD
+When /^I open my Action List to the last page$/i do
+  kaikifs.click_and_wait(:xpath, "//a[@class='portal_link' and @title='Action List']")
+  kaikifs.select_frame "iframeportlet"
+  begin
+    last_link = kaikifs.find_element(:link_text, 'Last')
+    last_link.click
+  rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError
+  end
+end
+
+# WD
 When /^I open my Action List, refreshing until that document appears$/i do
   steps %{
     When I open my Action List
@@ -42,8 +53,10 @@ When /^I wait for that document to appear in my Action List$/i do
   end
 end
 
+# WD
 When /^I open a doc search$/ do
-  kaikifs.click_and_wait("xpath=//a[@class='portal_link' and @title='Document Search']")
+  kaikifs.switch_to.default_content
+  kaikifs.click_and_wait(:xpath, "//a[@class='portal_link' and @title='Document Search']")
   kaikifs.select_frame "iframeportlet"
 end
 
@@ -61,6 +74,8 @@ When /^I click "([^"]*)"$/ do |link|
     kaikifs.click_and_wait :xpath, "//input[@title='#{link}']"
   elsif ['calculate'].include? link  # titleize or capitalize... this remains to be seen
     kaikifs.click_and_wait :xpath, "//input[@title='#{link.titleize}']"
+  elsif ['get document'].include? link
+    kaikifs.click_and_wait :name, "methodToCall.#{link.gsub(/ /, '_').camelize(:lower)}"
   elsif link == 'yes'
     kaikifs.click_and_wait :name, 'methodToCall.processAnswer.button0'
   elsif link == 'no'
@@ -68,6 +83,11 @@ When /^I click "([^"]*)"$/ do |link|
   else
     raise NotImplementedError
   end
+end
+
+# Clicks a button based on its name
+When /^I click the "([^"]*)" submit button$/ do |action|
+    kaikifs.click_and_wait :name, "methodToCall.#{action.gsub(/ /, '').camelize(:lower)}"
 end
 
 # WD
@@ -93,6 +113,7 @@ When /^I start a lookup for "([^"]*)"$/ do |field|
   )
 end
 
+# WD
 When /^I start a lookup for the new ([^']*)'s "([^"]*)"$/ do |tab, field|
   #kaikifs.click_and_wait("xpath=//*[@id='tab-#{object}-div']//div[contains(text(), '#{field}')]/../following-sibling::*/input[@title='Search ']")
   div = "tab-#{tab.pluralize}-div"
@@ -107,18 +128,23 @@ When /^I start a lookup for the new ([^']*)'s "([^"]*)"$/ do |tab, field|
 end
 
 # WD
-When /^I return with the first result$/ do
+When /^I (?:return(?: with)?|open) the first (?:result|one)$/ do
+  kaikifs.highlight(:xpath, "//table[@id='row']/tbody/tr/td/a", 4)
+  sleep 5
   kaikifs.click_and_wait(:xpath, "//table[@id='row']/tbody/tr/td/a")
 end
 
-When /^I return(?: with)? the "([^"]*)" one$/ do |key|
-  #kaikifs.click_and_wait("xpath=//a[contains(text(), '#{key}')]")
-  kaikifs.click_and_wait("xpath=//a[contains(text(), '#{key}')]/ancestor::tr/td[1]/a")
+# WD
+# Matches  I return the...
+#          I return with the ...
+#          I open the...
+When /^I (?:return(?: with)?|open) the "([^"]*)" (?:result|one)$/ do |key|
+  kaikifs.click_and_wait(:xpath, "//a[contains(text(), '#{key}')]/ancestor::tr/td[1]/a")
 end
 
-When /^I edit the "([^"]*)" one$/ do |key|
-  kaikifs.click_and_wait("xpath=//a[contains(text(), '#{key}')]/ancestor::tr/td[1]/a[contains(@title,'edit')]")
-end
+#When /^I edit the "([^"]*)" one$/ do |key|
+#  kaikifs.click_and_wait("xpath=//a[contains(text(), '#{key}')]/ancestor::tr/td[1]/a[contains(@title,'edit')]")
+#end
 
 # WD
 When /^I edit the first one$/ do
@@ -131,18 +157,22 @@ When /^I open that document$/ do
   kaikifs.click_and_wait(:xpath, "//a[contains(text(), '#{doc_nbr}')]")
 end
 
+# WD
 Given /^I am fast$/ do
   kaikifs.pause = 0
 end
 
+# WD
 When /^I slow down$/ do
   kaikifs.pause += 2
 end
 
+# WD
 When /^I sleep for "([^"]*)" seconds$/ do |seconds|
   sleep seconds.to_i
 end
 
+# WD
 When /^I pause$/ do
   sleep 30
 end

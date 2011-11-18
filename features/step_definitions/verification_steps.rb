@@ -1,3 +1,8 @@
+Then /^I should see my Action List$/ do
+  kaikifs.wait_for(:xpath, "//div[@id='headerarea-small']")
+  kaikifs.is_text_present("Action List").should == true
+end
+
 Then /^I should see "([^"]*)"$/ do |text|
   kaikifs.is_text_present(text).should == true
 end
@@ -8,16 +13,18 @@ Then /^I should see the message "([^"]*)"$/ do |text|
   kaikifs.is_text_present(text, "//div[@class='msg-excol']/div/div").should == true
 end
 
+# WD
 Then /^I should see "([^"]*)" in the "([^"]*)" iframe$/ do |text, frame|
   kaikifs.select_frame(frame+"IFrame")
   kaikifs.is_text_present(text).should == true
-  kaikifs.select_frame("relative=up")
+  kaikifs.switch_to.default_content
+  kaikifs.select_frame("iframeportlet")
 end
 
 Then /^I should see "([^"]*)" in "([^"]*)"$/ do |text, el|
   kaikifs.select_frame("iframeportlet")
   puts kaikifs.wait_for_text(text, :element => el, :timeout_in_seconds => 30);
-  kaikifs.select_frame("relative=up")
+  kaikifs.switch_to.default_content
 end
 
 Then /^I shouldn't get an HTTP Status (\d+)$/ do |status_no|
