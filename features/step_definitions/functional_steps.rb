@@ -10,6 +10,13 @@ When /^I record this "([^"]*)"$/ do |field|
   puts "#{field} = #{value}"
 end
 
+When /^I record this "([^"]*)" \(the number\)$/ do |field|
+  value = kaikifs.find_element(:xpath, "//th[contains(text(), '#{field}')]/following-sibling::*").text.strip
+  value = value.to_i.to_s
+  kaikifs.record[field] = value
+  puts "#{field} = #{value}"
+end
+
 When /^I set the "([^"]*)" to that one$/ do |field|
   value = kaikifs.record[field]
   kaikifs.set_approximate_field(

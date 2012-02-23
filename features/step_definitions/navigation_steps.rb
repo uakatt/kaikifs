@@ -67,12 +67,18 @@ When /^I click the "([^"]*)" portal link$/ do |link|
 end
 
 # WD
+When /^I click the "([^"]*)" portal link under "([^"]*)"$/ do |link, header|
+  kaikifs.click_and_wait(:xpath, "//h2[contains(text(), '#{header}')]/../../following-sibling::div//a[@class='portal_link' and @title='#{link}']")
+  kaikifs.select_frame "iframeportlet"
+end
+
+# WD
 When /^I click "([^"]*)"$/ do |link|
   if link == 'create new'
     kaikifs.click_and_wait :xpath, "//img[@alt='#{link}']"
   elsif ['approve', 'cancel', 'disapprove', 'search', 'submit'].include? link
     kaikifs.click_and_wait :xpath, "//input[@title='#{link}']"
-  elsif ['calculate'].include? link  # titleize or capitalize... this remains to be seen
+  elsif ['calculate', 'continue', 'print'].include? link  # titleize or capitalize... this remains to be seen
     kaikifs.click_and_wait :xpath, "//input[@title='#{link.titleize}']"
   elsif ['get document'].include? link
     kaikifs.click_and_wait :name, "methodToCall.#{link.gsub(/ /, '_').camelize(:lower)}"
@@ -85,6 +91,7 @@ When /^I click "([^"]*)"$/ do |link|
   end
 end
 
+# WD
 # Clicks a button based on its name
 When /^I click the "([^"]*)" submit button$/ do |action|
     kaikifs.click_and_wait :name, "methodToCall.#{action.gsub(/ /, '').camelize(:lower)}"
@@ -130,8 +137,8 @@ end
 # WD
 When /^I (?:return(?: with)?|open) the first (?:result|one)$/ do
   kaikifs.highlight(:xpath, "//table[@id='row']/tbody/tr/td/a", 4)
-  sleep 5
-  kaikifs.click_and_wait(:xpath, "//table[@id='row']/tbody/tr/td/a")
+  sleep 0.1
+  kaikifs.click_and_wait(:xpath, "//table[@id='row']/tbody/tr/td/a[1]")
 end
 
 # WD
@@ -154,25 +161,47 @@ end
 # WD
 When /^I open that document$/ do
   doc_nbr = kaikifs.record[:document_number]
+  sleep 0.1
   kaikifs.click_and_wait(:xpath, "//a[contains(text(), '#{doc_nbr}')]")
 end
 
 # WD
+When /^I switch to the new window$/ do
+  kaikifs.pause
+  new_handles = kaikifs.window_handles - [kaikifs.window_handle]
+  raise StandardError if new_handles.size != 1  # TODO better error
+  kaikifs.switch_to.window(new_handles[0])
+  kaikifs.pause
+end
+
+# WD
+When /^I close that window$/ do
+  kaikifs.close
+  kaikifs.close_blank_windows
+  kaikifs.switch_to.window(kaikifs.window_handles[0])
+  kaikifs.pause
+end
+
+# WD
 Given /^I am fast$/ do
-  kaikifs.pause = 0
+  kaikifs.log.debug "I am fast (pause_time = 0)"
+  kaikifs.pause_time = 0
 end
 
 # WD
 When /^I slow down$/ do
-  kaikifs.pause += 2
+  kaikifs.log.debug "I slow down (pause_time = #{kaikifs.pause_time + 2})"
+  kaikifs.pause_time += 2
 end
 
 # WD
-When /^I sleep for "([^"]*)" seconds$/ do |seconds|
+When /^I sleep for "?([^"]*)"? seconds$/ do |seconds|
+  kaikifs.log.debug "I sleep for #{seconds} seconds"
   sleep seconds.to_i
 end
 
 # WD
 When /^I pause$/ do
+  kaikifs.log.debug "I pause (for 30 seconds)"
   sleep 30
 end

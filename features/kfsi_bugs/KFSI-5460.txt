@@ -50,7 +50,7 @@ open doc search
   click "search"
   open first
   remember the Purchase Order #
-  click "print"  AUTO SAVE???
+  click "print"
 
 backdoor as kfs-test-sec36
 open Central Admin tab
@@ -86,45 +86,6 @@ open Schedule
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-The PaymentRequestItem changes (version) around DocumentDaoOjb.save() methinks. This is also where a second PaymentRequestItemUseTax is added:
-
-BEFORE:
->> item = preq_items_for(preq).first; pp item
-:UNT_PRC_OVRG_IND @values={:itemIdentifier=>1735, :objectId=>"1C0FA8D8-5E11-0B76-F9ED-697CC8333EE0", :versionNumber=>5, :purapDocumentIdentifier=>1402, :itemLineNumber=>1, :itemTypeCode=>"ITEM", :itemDescription=>"Wifget", :itemCatalogNumber=>nil, :itemAuxiliaryPartIdentifier=>nil, :itemUnitOfMeasureCode=>"EA", :itemQuantity=>1.0, :itemUnitPrice=>#<BigDecimal:7cae930,'0.1E4',9(18)>, :purchaseOrderItemUnitPrice=>#<BigDecimal:7cae868,'0.1E4',9(18)>, :extendedPrice=>#<BigDecimal:7cae7c8,'0.1E4',9(18)>, :capitalAssetTransactionTypeCode=>nil, :ITM_CPTL_AST_NTE_TXT=>nil, :itemAssignedToTradeInIndicator=>"N", :itemOutstandingInvoiceQuantity=>nil, :itemOutstandingInvoiceAmount=>nil, :itemSalesTaxAmount=>nil, :UNT_PRC_OVRG_IND=>"N"}>
-=> nil
->> preq_items_use_tax_for(item).each {|iut| pp iut}
-:financialObjectCode @values={:useTaxId=>1393, :objectId=>"C38F7AC8-611A-A4DB-CEB9-76EF304F788E", :versionNumber=>4, :itemIdentifier=>1735, :rateCode=>"ARIZONAUSE", :taxAmount=>#<BigDecimal:7c88ff0,'0.66E2',9(18)>, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>
-=> #<Sequel::Oracle::Dataset: "SELECT * FROM \"AP_PMT_RQST_ITM_USE_TAX_T\" WHERE (\"PMT_RQST_ITM_ID\" = 1735)">
-
-AFTER:
->> item = preq_items_for(preq).first; pp item
-:UNT_PRC_OVRG_IND @values={:itemIdentifier=>1735, :objectId=>"1C0FA8D8-5E11-0B76-F9ED-697CC8333EE0", :versionNumber=>6, :purapDocumentIdentifier=>1402, :itemLineNumber=>1, :itemTypeCode=>"ITEM", :itemDescription=>"Wifget", :itemCatalogNumber=>nil, :itemAuxiliaryPartIdentifier=>nil, :itemUnitOfMeasureCode=>"EA", :itemQuantity=>1.0, :itemUnitPrice=>#<BigDecimal:7c64d80,'0.1E4',9(18)>, :purchaseOrderItemUnitPrice=>#<BigDecimal:7c64c90,'0.1E4',9(18)>, :extendedPrice=>#<BigDecimal:7c64bf0,'0.1E4',9(18)>, :capitalAssetTransactionTypeCode=>nil, :ITM_CPTL_AST_NTE_TXT=>nil, :itemAssignedToTradeInIndicator=>"N", :itemOutstandingInvoiceQuantity=>nil, :itemOutstandingInvoiceAmount=>nil, :itemSalesTaxAmount=>nil, :UNT_PRC_OVRG_IND=>"N"}>
-=> nil
->> preq_items_use_tax_for(item).each {|iut| pp iut}
-:financialObjectCode @values={:useTaxId=>1393, :objectId=>"C38F7AC8-611A-A4DB-CEB9-76EF304F788E", :versionNumber=>4, :itemIdentifier=>1735, :rateCode=>"ARIZONAUSE", :taxAmount=>#<BigDecimal:7c28100,'0.66E2',9(18)>, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>
-:financialObjectCode @values={:useTaxId=>1394, :objectId=>"AB0AC44F-7ECC-3F15-300F-59DAE3A2AFC8", :versionNumber=>1, :itemIdentifier=>1735, :rateCode=>"ARIZONAUSE", :taxAmount=>#<BigDecimal:7c21120,'0.66E2',9(18)>, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>
-=> #<Sequel::Oracle::Dataset: "SELECT * FROM \"AP_PMT_RQST_ITM_USE_TAX_T\" WHERE (\"PMT_RQST_ITM_ID\" = 1735)">
-
-Then, I believe in cleansing, in OjbCollectionHelper.processCollections(), we bump up all of those versions:
-
->> item = preq_items_for(preq).first; pp item
-:UNT_PRC_OVRG_IND @values={:itemIdentifier=>1735, :objectId=>"1C0FA8D8-5E11-0B76-F9ED-697CC8333EE0", :versionNumber=>8, :purapDocumentIdentifier=>1402, :itemLineNumber=>1, :itemTypeCode=>"ITEM", :itemDescription=>"Wifget", :itemCatalogNumber=>nil, :itemAuxiliaryPartIdentifier=>nil, :itemUnitOfMeasureCode=>"EA", :itemQuantity=>1.0, :itemUnitPrice=>#<BigDecimal:7244e18,'0.1E4',9(18)>, :purchaseOrderItemUnitPrice=>#<BigDecimal:7244c38,'0.1E4',9(18)>, :extendedPrice=>#<BigDecimal:72449b8,'0.1E4',9(18)>, :capitalAssetTransactionTypeCode=>nil, :ITM_CPTL_AST_NTE_TXT=>nil, :itemAssignedToTradeInIndicator=>"N", :itemOutstandingInvoiceQuantity=>nil, :itemOutstandingInvoiceAmount=>nil, :itemSalesTaxAmount=>nil, :UNT_PRC_OVRG_IND=>"N"}>
-=> nil
->> preq_items_use_tax_for(item).each {|iut| pp iut}
-:financialObjectCode @values={:useTaxId=>1393, :objectId=>"C38F7AC8-611A-A4DB-CEB9-76EF304F788E", :versionNumber=>6, :itemIdentifier=>1735, :rateCode=>"ARIZONAUSE", :taxAmount=>#<BigDecimal:71efda0,'0.66E2',9(18)>, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>
-:financialObjectCode @values={:useTaxId=>1394, :objectId=>"AB0AC44F-7ECC-3F15-300F-59DAE3A2AFC8", :versionNumber=>3, :itemIdentifier=>1735, :rateCode=>"ARIZONAUSE", :taxAmount=>#<BigDecimal:71dc980,'0.66E2',9(18)>, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>
-=> #<Sequel::Oracle::Dataset: "SELECT * FROM \"AP_PMT_RQST_ITM_USE_TAX_T\" WHERE (\"PMT_RQST_ITM_ID\" = 1735)">
 
 
 
@@ -165,3 +126,20 @@ LATER
 
 >> pp preq_items_for(preq).first.useTaxItems
 [#<PaymentRequestItemUseTax @values={:useTaxId=>1421, :objectId=>"C2DED1A4-0164-DE3C-F1C7-1BACFCA981B9", :versionNumber=>6, :itemIdentifier=>1821, :rateCode=>"ARIZONAUSE", :taxAmount=>66.0, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>, #<PaymentRequestItemUseTax @values={:useTaxId=>1422, :objectId=>"D4E7EF79-DA6F-7A91-C654-254C32766A93", :versionNumber=>3, :itemIdentifier=>1821, :rateCode=>"ARIZONAUSE", :taxAmount=>66.0, :chartOfAccountsCode=>"UA", :accountNumber=>"2892000", :financialObjectCode=>"9190"}>]
+
+
+
+
+
+RECREATE AGAIN
+==============
+
+I only debug on OjbCollectionHelper#45
+After clicking run, the Item's version number is 5, and the Item.useTaxItems.first version number is 4.
+
+After clicking through 1x on OjbCollectionHelper#45:
+		the Item's version number is 6, and the Item.useTaxItems.first version number is 4.
+After clicking through 2x on OjbCollectionHelper#45:
+		the Item's version number is 6, and the Item.useTaxItems.first version number is 4. There are two Use Tax Items.
+After clicking through 3x on OjbCollectionHelper#45:
+		the Item's version number is 8, and the Item.useTaxItems.first version number is 4. There are two Use Tax Items.

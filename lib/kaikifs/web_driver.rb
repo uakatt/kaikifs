@@ -15,10 +15,12 @@ end
 class KaikiFS::WebDriver
   include Log4r
   attr_reader :driver, :env, :username, :screenshot_dir, :log
-  attr_accessor :pause, :record
+  attr_accessor :pause_time, :record
   ENVS_FILE = "envs.json"
+  DEFAULT_TIMEOUT = 8
   extend Forwardable
-  def_delegators :@driver, :execute_script, :quit, :switch_to
+  def_delegators :@driver, :close, :current_url, :execute_script, :page_source, :quit, :switch_to,
+                           :window_handle, :window_handles
 
   def initialize(username, password, options={})
     @username = username
@@ -33,15 +35,15 @@ class KaikiFS::WebDriver
       @env = @envs.keys.first
     end
 
-    @pause = options[:pause] || 0.3
+    @pause_time = options[:pause_time] || 0.3
 
 
     @threads = []
     @record = {}  # record is a hash containing notes that the "user" needs to keep, like the document number he just created.
 
-    @stderr_log =            File.join(Dir::pwd, 'features', 'stderr', Time.now.strftime("%Y.%m.%d-%H.%M.%S"))  # This was largely (entirely?) for Selenium 1...
-    @log        = Logger.new 'debug_log'
-    file_outputter = FileOutputter.new 'file', :filename => File.join(Dir::pwd, 'features', 'logs',   Time.now.strftime("%Y.%m.%d-%H.%M.%S"))
+    @stderr_log = File.join(Dir::pwd, 'features', 'stderr', Time.now.strftime("%Y.%m.%d-%H.%M.%S"))  # This was largely (entirely?) for Selenium 1...
+    @log = Logger.new 'debug_log'
+    file_outputter = FileOutputter.new 'file', :filename => File.join(Dir::pwd, 'features', 'logs', Time.now.strftime("%Y.%m.%d-%H.%M.%S"))
     @log.outputters = file_outputter
     @log.level = DEBUG
   end
@@ -49,36 +51,51 @@ class KaikiFS::WebDriver
 
   ##### THIN WRAPPERS
   def find_element(method, selector, options={})
+    retries = 4
+
     sleep 0.1  # based on http://groups.google.com/group/ruby-capybara/browse_thread/thread/5e182835a8293def fixes "NS_ERROR_ILLEGAL_VALUE"
     begin
       @driver.find_element(method, selector)
     rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError => e
       return nil if options[:no_raise]
       raise e
+    rescue Selenium::WebDriver::Error::InvalidSelectorError => e
+      raise e if retries == 0
+      @log.warn "Caught a Selenium::WebDriver::Error::InvalidSelectorError: #{e}"
+      @log.warn "  Retrying..."
+      pause 2
+      retries -= 1
+      retry
     end
   end
 
   def hide_tab(name)
-    wait = Selenium::WebDriver::Wait.new(:timeout => 8)
+    @log.debug "    hide_tab: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//input[@title='close #{name}']\")..."
+    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
     wait.until { driver.find_element(:xpath, "//input[@title='close #{name}']") }
     @driver.find_element(:xpath, "//input[@title='close #{name}']").click
+    pause
   end
 
   def show_tab(name)
-    wait = Selenium::WebDriver::Wait.new(:timeout => 8)
+    @log.debug "    show_tab: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//input[@title='open #{name}']\")..."
+    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
     wait.until { driver.find_element(:xpath, "//input[@title='open #{name}']") }
     @driver.find_element(:xpath, "//input[@title='open #{name}']").click
+    pause
   end
 
   def show_complicated_tab(name)
-    wait = Selenium::WebDriver::Wait.new(:timeout => 8)
+    @log.debug "    show_complicated_tab: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//input[@title='open #{name}']\")..."
+    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
     wait.until { driver.find_element(:xpath, "//input[@title='open #{name}']") }
     @driver.find_element(:xpath, "//input[@title='open #{name}']").click
   end
 
   def backdoor_as(user)
     switch_to.default_content
-    wait = Selenium::WebDriver::Wait.new(:timeout => 8)
+    @log.debug "    backdoor_as: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//*[@name='backdoorId']\")..."
+    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
     wait.until { driver.find_element(:xpath, "//*[@name='backdoorId']") }
     set_field("//*[@name='backdoorId']", user)
     @driver.find_element(:css, 'input[value=login]').click
@@ -87,15 +104,17 @@ class KaikiFS::WebDriver
   end
 
   def check_approximate_field(selectors)
+    timeout = DEFAULT_TIMEOUT
     selectors.each do |selector|
       begin
-        return check(:xpath, selector)
+        return check(:xpath, selector, {:timeout => timeout})
       rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError
+        timeout = 0.5
         # Try the next selector
       end
     end
 
-    puts "Failed to check approximate field. Selectors are:\n#{selectors.join("\n") }"
+    @log.error "Failed to check approximate field. Selectors are:\n#{selectors.join("\n") }"
     raise Selenium::WebDriver::Error::NoSuchElementError
   end
 
@@ -108,36 +127,43 @@ class KaikiFS::WebDriver
       end
     end
 
-    puts "Failed to uncheck approximate field. Selectors are:\n#{selectors.join("\n") }"
+    @log.error "Failed to uncheck approximate field. Selectors are:\n#{selectors.join("\n") }"
     raise Selenium::WebDriver::Error::NoSuchElementError
   end
 
-  def check(method, locator)
-    wait = Selenium::WebDriver::Wait.new(:timeout => 8)
+  def check(method, locator, options={})
+    timeout = options[:timeout] || DEFAULT_TIMEOUT
+    @log.debug "    check: Waiting up to #{timeout} seconds to find_element(#{method}, #{locator})..."
+    wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
     wait.until { driver.find_element(method, locator) }
     element = driver.find_element(method, locator)
     element.click unless element.selected?
+    pause
   end
 
   def uncheck(method, locator)
-    wait = Selenium::WebDriver::Wait.new(:timeout => 8)
+    @log.debug "    uncheck: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(#{method}, #{locator})..."
+    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
     wait.until { driver.find_element(method, locator) }
     element = driver.find_element(method, locator)
     element.click if element.selected?
+    pause
   end
 
   def click_and_wait(method, locator, options = {})
-    timeout = options[:timeout] || 8
+    @log.debug "  Start click_and_wait(#{method.inspect}, #{locator.inspect}, #{options.inspect})"
+    timeout = options[:timeout] || DEFAULT_TIMEOUT
+    @log.debug "    click_and_wait: Waiting up to #{timeout} seconds to find_element(#{method}, #{locator})..."
     wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
     wait.until { driver.find_element(method, locator) }
     dont_stdout! do
       @driver.find_element(method, locator).click
     end
-    sleep @pause
+    pause
   end
 
   def click_approximate_and_wait(locators)
-    timeout = 8
+    timeout = DEFAULT_TIMEOUT
     locators.each do |locator|
       begin
         click_and_wait(:xpath, locator, {:timeout => timeout})
@@ -150,6 +176,14 @@ class KaikiFS::WebDriver
     raise Selenium::WebDriver::Error::NoSuchElementError
   end
 
+  # Must follow this with a call to #switch_to, so that you know what window you're on
+  def close_blank_windows
+    @driver.window_handles.each do |handle|
+      @driver.switch_to.window(handle)
+      @driver.close if @driver.current_url == 'about:blank'
+    end
+  end
+
   def dont_stdout!
     orig_stdout = $stdout
     $stdout = File.open(@stderr_log, 'a')  # redirect stdout to /dev/null
@@ -157,8 +191,17 @@ class KaikiFS::WebDriver
     $stdout = orig_stdout  # restore stdout
   end
 
+  def enlargen(method, locator)
+    @log.debug "    enlargen: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(#{method}, #{locator})..."
+    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
+    wait.until { find_element(method, locator) }
+    element = find_element(method, locator)
+    execute_script("hlt = function(c) { c.style.fontSize='3em'; }; return hlt(arguments[0]);", element)
+  end
+
   def get_xpath(method, locator)
-    wait = Selenium::WebDriver::Wait.new(:timeout => 8)
+    @log.debug "    wait_for: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(#{method}, #{locator})..."
+    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
     wait.until { find_element(method, locator) }
     element = find_element(method, locator)
     xpath = execute_script("gPt=function(c){if(c.id!==''){return'id(\"'+c.id+'\")'}if(c===document.body){return c.tagName}var a=0;var e=c.parentNode.childNodes;for(var b=0;b<e.length;b++){var d=e[b];if(d===c){return gPt(c.parentNode)+'/'+c.tagName+'['+(a+1)+']'}if(d.nodeType===1&&d.tagName===c.tagName){a++}}};return gPt(arguments[0]);", element)
@@ -166,25 +209,19 @@ class KaikiFS::WebDriver
   end
 
   def highlight(method, locator, ancestors=0)
-    wait = Selenium::WebDriver::Wait.new(:timeout => 8)
+    @log.debug "    highlight: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(#{method}, #{locator})..."
+    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
     wait.until { find_element(method, locator) }
     element = find_element(method, locator)
-    execute_script("hlt = function(c) { c.style.border='solid 1px red'; }; return hlt(arguments[0]);", element)
+    execute_script("hlt = function(c) { c.style.border='solid 1px rgb(255, 16, 16)'; }; return hlt(arguments[0]);", element)
     parents = ""
     red = 255
 
     ancestors.times do
       parents << ".parentNode"
-      red -= (15*8 / ancestors)
+      red -= (12*8 / ancestors)
       execute_script("hlt = function(c) { c#{parents}.style.border='solid 1px rgb(#{red}, 0, 0)'; }; return hlt(arguments[0]);", element)
     end
-  end
-
-  def enlargen(method, locator)
-    wait = Selenium::WebDriver::Wait.new(:timeout => 8)
-    wait.until { find_element(method, locator) }
-    element = find_element(method, locator)
-    execute_script("hlt = function(c) { c.style.fontSize='3em'; }; return hlt(arguments[0]);", element)
   end
 
   def is_text_present(text, xpath='//*')
@@ -192,8 +229,8 @@ class KaikiFS::WebDriver
       @driver.find_element(:xpath, "#{xpath}[contains(text(),'"+text+"')]")
       true
     rescue Selenium::WebDriver::Error::NoSuchElementError
-      puts "Could not find: @driver.find_element(:xpath, \"#{xpath}[contains(text(),'"+text+"')]\")"
-      puts @driver.find_element(:xpath, xpath).inspect
+      @log.error "Could not find: @driver.find_element(:xpath, \"#{xpath}[contains(text(),'"+text+"')]\")"
+      @log.error @driver.find_element(:xpath, xpath).inspect
       false
     end
   end
@@ -217,8 +254,14 @@ class KaikiFS::WebDriver
     Dir::mkdir(@screenshot_dir)
   end
 
+  def pause(time = nil)
+    @log.debug "  breathing..."
+    sleep (time or @pause_time)
+  end
+
   def select_frame(id)
     @driver.switch_to().frame(id)
+    pause
   end
 
   def record_kfs_version
@@ -289,7 +332,7 @@ class KaikiFS::WebDriver
   end
 
   def get_approximate_field(selectors)
-    timeout = 8
+    timeout = DEFAULT_TIMEOUT
     selectors.each do |selector|
       begin
         return get_field(selector, {:timeout => timeout})
@@ -304,7 +347,8 @@ class KaikiFS::WebDriver
   end
 
   def get_field(selector, options={})
-    timeout = options[:timeout] || 8
+    timeout = options[:timeout] || DEFAULT_TIMEOUT
+    @log.debug "    get_field: Waiting up to #{timeout} seconds to find_element(:xpath, #{selector})..."
     wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
     wait.until { driver.find_element(:xpath, selector) }
     element = @driver.find_element(:xpath, selector)
@@ -324,12 +368,13 @@ class KaikiFS::WebDriver
       end
     end
 
-    puts "Failed to set approximate field. Selectors are:\n#{selectors.join("\n") }"
+    @log.error "Failed to set approximate field. Selectors are:"
+    selectors.each { |s| @log.error "  #{s}" }
     raise Selenium::WebDriver::Error::NoSuchElementError
   end
 
   def set_field(id, value=nil)
-    @log.debug "Start: set_field(#{id.inspect}, #{value.inspect})"
+    @log.debug "  Start set_field(#{id.inspect}, #{value.inspect})"
     if id =~ /@value=/  # I am praying I only use value for radio buttons...
       node_name = 'radio'
       locator = id
@@ -347,7 +392,8 @@ class KaikiFS::WebDriver
       node_name = 'radio'
       locator = id
     else
-      wait = Selenium::WebDriver::Wait.new(:timeout => 10)
+    @log.debug "    set_field: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:id, #{id})..."
+      wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
       wait.until { driver.find_element(:id, id) }
       node = @driver.find_element(:id, id)
       node_name = node.tag_name.downcase
@@ -356,8 +402,8 @@ class KaikiFS::WebDriver
 
     case node_name
     when 'input'
-      @log.debug "  set_field: node_name is #{node_name.inspect}"
-      @log.debug "  set_field: locator is #{locator.inspect}"
+      @log.debug "    set_field: node_name is #{node_name.inspect}"
+      @log.debug "    set_field: locator is #{locator.inspect}"
       # Make the field empty first
       if not locator['"']  # @TODO UGLY UGLY workaround for now. If an xpath has double quotes in it... then I can't check if it's empty just yet.
         unless get_field(locator).empty?
@@ -369,11 +415,12 @@ class KaikiFS::WebDriver
 
       @driver.find_element(:xpath, locator).send_keys(value)
     when 'select'
-      wait = Selenium::WebDriver::Wait.new(:timeout => 10)
+      @log.debug "    set_field: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, #{locator})..."
+      wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
       wait.until { driver.find_element(:xpath, locator) }
       select = @driver.find_element(:xpath, locator)
       select.click
-      sleep @pause
+      pause
 
       option = select.find_elements( :tag_name => 'option' ).find do |option|
           option.text == value
@@ -389,7 +436,7 @@ class KaikiFS::WebDriver
       @driver.find_element(:xpath, locator).send_keys(value)
     end
 
-    sleep @pause
+    pause
   end
 
   def start_session
@@ -408,7 +455,8 @@ class KaikiFS::WebDriver
   end
 
   def wait_for(method, locator)
-    wait = Selenium::WebDriver::Wait.new(:timeout => 10)
+    @log.debug "    wait_for: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(#{method}, #{locator})..."
+    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
     sleep 0.1  # based on http://groups.google.com/group/ruby-capybara/browse_thread/thread/5e182835a8293def fixes "NS_ERROR_ILLEGAL_VALUE"
     wait.until { driver.find_element(method, locator) }
   end

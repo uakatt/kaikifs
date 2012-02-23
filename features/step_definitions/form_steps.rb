@@ -7,8 +7,7 @@ When /^I set the "([^"]*)" to "([^"]*)"$/ do |field, value|
       "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/%s",
       ['th/label',    '',       'select[1]'],
       ['th/div',      '[1]',    'input[1]'],
-      [nil,           '[2]',    nil],
-      [nil,           '[3]',    nil]
+      [nil,           '[2]',    nil]
     ) +
     ApproximationsFactory.transpose_build(
       "//th[contains(text()%s, '#{field}')]/../following-sibling::tr/td/div/%s[contains(@title, '#{field}')]",
@@ -27,8 +26,7 @@ When /^I set the "([^"]*)" to "([^"]*)" if blank$/ do |field, value|
       "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/%s",
       ['th/label',    '',       'select[1]'],
       ['th/div',      '[1]',    'input[1]'],
-      [nil,           '[2]',    nil],
-      [nil,           '[3]',    nil]
+      [nil,           '[2]',    nil]
     ) +
     ApproximationsFactory.transpose_build(
       "//th[contains(text()%s, '#{field}')]/../following-sibling::tr/td/div/%s[contains(@title, '#{field}')]",
@@ -45,8 +43,7 @@ When /^I set the "([^"]*)" to "([^"]*)" if blank$/ do |field, value|
         "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/%s",
         ['th/label',    '',       'select[1]'],
         ['th/div',      '[1]',    'input[1]'],
-        [nil,           '[2]',    nil],
-        [nil,           '[3]',    nil]
+        [nil,           '[2]',    nil]
       ) +
       ApproximationsFactory.transpose_build(
         "//th[contains(text()%s, '#{field}')]/../following-sibling::tr/td/div/%s[contains(@title, '#{field}')]",
@@ -81,30 +78,52 @@ end
 # WD
 When /^I set the "([^"]*)" to something like "([^"]*)"$/ do |field, value|
   value = value + ' ' + Time.now.strftime("%Y%m%d%H%M%S")
-  #kaikifs.set_approximate_field(
-  #  [
-  #    "//div[contains(text(), '#{field}:')]/../following-sibling::*/input[1] | //div[contains(text(), '#{field}:')]/../following-sibling::*/select[1]",
-  #    # The following appear on lookups like the Person Lookup. Like Group > create new > Assignee Lookup (find a shorter path to Person Lookup)
-  #    # Also like Document Description
-  #    "//th/label[contains(text(), '#{field}')]/../following-sibling::td/input[1]",
-  #    "//th/label[contains(text()[1], '#{field}')]/../following-sibling::td/input[1]",  # Vendor > create new > Document Overview Description
-  #    "//th/label[contains(text()[2], '#{field}')]/../following-sibling::td/input[1]",
-  #    # The following are for horrible places in KFS where the text in a th might not be the first text() node.
-  #    "//th[contains(text(), '#{field}')]",     # INCOMPLETE
-  #    "//th[contains(text()[1], '#{field}')]",  # INCOMPLETE
-  #    "//th[contains(text()[2], '#{field}')]/../following-sibling::*//*[contains(@title, '#{field}')]", # Group > create new > Chart Code
-  #    "//th[contains(text()[3], '#{field}')]"   # INCOMPLETE
-  #  ],
-  #  value)
   kaikifs.set_approximate_field(
     ApproximationsFactory.transpose_build(
       "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/%s",
       ['th/label',    '',       'select[1]'],
       ['th/div',      '[1]',    'input[1]'],
-      [nil,           '[2]',    nil],
-      [nil,           '[3]',    nil]
+      [nil,           '[2]',    nil]
     ),
     value
+  )
+end
+
+# WD
+When /^I set the "([^"]*)" to that "([^"]*)"$/ do |field, identifier|
+  kaikifs.set_approximate_field(
+    ApproximationsFactory.transpose_build(
+      "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/%s",
+      ['th/label',    '',       'select[1]'],
+      ['th/div',      '[1]',    'input[1]'],
+      [nil,           '[2]',    nil]
+    ) +
+    ApproximationsFactory.transpose_build(
+      "//th[contains(text()%s, '#{field}')]/../following-sibling::tr/td/div/%s[contains(@title, '#{field}')]",
+      ['',       'select'],
+      ['[1]',    'input'],
+      ['[2]',    nil]
+    ),
+    kaikifs.record[identifier]
+  )
+end
+
+# WD
+When /^I set the "([^"]*)" to now \(([^)]+)\)$/ do |field, time_format|
+  kaikifs.set_approximate_field(
+    ApproximationsFactory.transpose_build(
+      "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/%s",
+      ['th/label',    '',       'select[1]'],
+      ['th/div',      '[1]',    'input[1]'],
+      [nil,           '[2]',    nil]
+    ) +
+    ApproximationsFactory.transpose_build(
+      "//th[contains(text()%s, '#{field}')]/../following-sibling::tr/td/div/%s[contains(@title, '#{field}')]",
+      ['',       'select'],
+      ['[1]',    'input'],
+      ['[2]',    nil]
+    ),
+    Time.now.strftime(time_format)
   )
 end
 
@@ -162,21 +181,11 @@ When /^I set a new ([^']*)'s "([^"]*)" to "([^"]*)"$/ do |tab, field, value|
     else            field
     end
   kaikifs.set_approximate_field(
-    #[
-    #  "//*[@id='#{div}']//div[contains(text(), '#{field}:')]/../following-sibling::*/input[1] | //div[contains(text(), '#{field}:')]/../following-sibling::*/select[1]",
-    #  "//*[@id='#{div}']//th/label[contains(text(), '#{field}')]/../following-sibling::td//select[1]",  # Vendor > create new > new Address > Address Type
-    #  "//*[@id='#{div}']//th/label[contains(text(), '#{field}')]/../following-sibling::td//input[1]",   # Vendor > create new > new Address > Address 1
-    #  "//*[@id='#{div}']//#{row}//th[contains(text(), '#{field}')]/../following-sibling::tr//*[contains(@title, '#{title}')]",    # Requisition > Add Item > UOM
-    #  "//*[@id='#{div}']//#{row}//th[contains(text()[1], '#{field}')]/../following-sibling::tr//*[contains(@title, '#{title}')]",
-    #  "//*[@id='#{div}']//#{row}//th[contains(text()[2], '#{field}')]/../following-sibling::tr//*[contains(@title, '#{title}')]", # Group > create new > set Group Namespace > Assignees
-    #  "//*[@id='#{div}']//#{row}//th[contains(text()[3], '#{field}')]/../following-sibling::tr//*[contains(@title, '#{title}')]"
-    #],
     ApproximationsFactory.transpose_build(
       "//*[@id='#{div}']//%s[contains(text()%s, '#{field}')]/../following-sibling::td//%s",
       ['div',       '',       'select[1]'],
       ['th/label',  '[1]',    'input[1]'],
-      [nil,         '[2]',    nil],
-      [nil,         '[3]',    nil]
+      [nil,         '[2]',    nil]
     ) +
     ApproximationsFactory.build(
       "//*[@id='#{div}']//#{row}//th[contains(text()%s, '#{field}')]/../following-sibling::tr//*[contains(@title, '#{title}')]",
@@ -196,8 +205,7 @@ When /^I set the "([^"]*)" to the given document number$/ do |field|
       "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/%s",
       ['th/label',    '',       'select[1]'],
       ['th/div',      '[1]',    'input[1]'],
-      [nil,           '[2]',    nil],
-      [nil,           '[3]',    nil]
+      [nil,           '[2]',    nil]
     ) +
     ApproximationsFactory.transpose_build(
       "//th[contains(text()%s, '#{field}')]/../following-sibling::tr/td/div/%s[contains(@title, '#{field}')]",
@@ -212,23 +220,28 @@ end
 # WD
 When /^I (check|uncheck) "([^"]*)"$/ do |check, field|
   method = (check+'_approximate_field').to_sym
-  kaikifs.send(method,
-    ApproximationsFactory.transpose_build(
-      "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/input[1]",
-      ['th/label',    ''],
-      ['th/div',      '[1]'],
-      [nil,           '[2]'],
-      [nil,           '[3]']
-    ) +
-    ApproximationsFactory.transpose_build(
-      "//th[contains(text()%s, '#{field}')]/../following-sibling::tr/td/div/input[1][contains(@title, '#{field}')]",
-      [''],
-      ['[1]'],
-      ['[2]']
+
+  if field == 'Immediate Pay'
+    kaikifs.send(check, :xpath, "//input[@name='document.immediatePaymentIndicator']")
+  else
+    kaikifs.send(method,
+      ApproximationsFactory.transpose_build(
+        "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/input[1]",
+        ['th/label',    ''],
+        ['th/div',      '[1]'],
+        [nil,           '[2]']
+      ) +
+      ApproximationsFactory.transpose_build(
+        "//th[contains(text()%s, '#{field}')]/../following-sibling::tr/td/div/input[1][contains(@title, '#{field}')]",
+        [''],
+        ['[1]'],
+        ['[2]']
+      )
     )
-  )
+  end
 end
 
+# WD
 When /^I (check|uncheck) the "([^"]*)" for the new "([^"]*)"$/ do |check, field, child|
   div = case
         when child == 'Search Alias' then 'tab-SearchAlias-div'
@@ -268,7 +281,25 @@ When /^I add that ([0-9a-z]+) Item's new Source Line$/i do |ordinal|
           "/../following-sibling::tr//div[contains(text()[2], 'Accounting Lines')]" +  # Back up, drop down a row, find the "Acounting Lines" div
           "/../../following-sibling::tr//td[contains(text(), 'Source')]" +             # Back up, drop down a row, find the "Source" cell
           "/../following-sibling::tr/td/div/input[contains(@src, 'add1.gif')]"         # Back up, drop down a row, find the "add" button
-  kaikifs.click_and_wait :xpath, xpath
+  #retries = 3
+  #while true
+    kaikifs.click_and_wait :xpath, xpath
+
+    # NEED SOME STUFF TO DOUBLE CHECK THAT IT WAS ADDED. POSSIBLE ERRORS
+    # "4 error(s) found on page" or "2 error(s) found on page"
+    # * Chart was not selected ("Chart Code (Chart) is a required field.")
+    # * Chart AZ was selected  ("The specified Account Number does not exist.")
+    # Also, take screenshot? record errors?
+  #  break unless kaikifs.is_text_present("error(s) found on page")
+  #  retries -= 1
+  #  if retries < 0
+  #    kaikifs.log.error "The #{ordinal} item's new Source Lines didn't add so well. No more retries."
+  #    false.should == true  # break out of the scenario?
+  #    break  # did i not break out of the scenario?
+  #  else
+  #    kaikifs.log.warn "The #{ordinal} item's new Source Lines didn't add so well. Trying again..."
+  #  end
+  #end
 end
 
 # WD
@@ -361,16 +392,67 @@ When /^I fill out the ([0-9a-z]+) Item's "([^"]*)" with the following new Source
           "/../following-sibling::tr/th[contains(text(), '%s')]" +           # Back up, drop down a row, find the "Chart" header
           "/../following-sibling::tr/td//%s[contains(@title, '%s')]"         # Back up, drop down a row, find the "Chart" select
   fields = table.rows_hash
-  fields.each do |key, value|
-    kaikifs.set_approximate_field(
-      ApproximationsFactory::build(
-        xpath,
-        [key],
-        ['select[1]', 'input[1]'],
-        [key]
-      ),
-    value)
+
+  retries = 3
+  while true
+    fields.each do |key, value|
+      kaikifs.set_approximate_field(
+        ApproximationsFactory::build(
+          xpath,
+          [key],
+          ['select[1]', 'input[1]'],
+          [key]
+        ),
+      value)
+    end
+
+    # NEED SOME STUFF TO DOUBLE CHECK THAT ITS ALL FILLED OUT.
+    break unless (kaikifs.is_text_present("account not found") or  # Chart 'AZ' was selected
+                  kaikifs.is_text_present("chart code is empty"))  # No Chart was selected
+    retries -= 1
+    if retries < 0
+      kaikifs.log.error "The #{ordinal} item's new Source Lines didn't fill out so well. No more retries."
+      false.should == true  # break out of the scenario?
+      break  # did i not break out of the scenario?
+    else
+      kaikifs.log.warn "The #{ordinal} item's new Source Lines didn't fill out so well. Trying again..."
+    end
   end
+
+  #fields.each do |key, value|
+  #  kaikifs.set_approximate_field(
+  #    ApproximationsFactory::build(
+  #      xpath,
+  #      [key],
+  #      ['select[1]', 'input[1]'],
+  #      [key]
+  #    ),
+  #  value)
+  #end
+end
+
+# WD
+When /^I set the ([0-9a-z]+) Item's "([^"]*)" to "([^"]*)"/ do |ordinal, field, value|
+  numeral = EnglishNumbers::ORDINAL_TO_NUMERAL[ordinal]
+  title = case field
+    when "Qty Invoiced"  then "Quantity Invoiced"
+    when "Extended Cost" then "Extended Price"                # Facepalm
+    when "Qty Received"  then "Item Received Total Quantity"  # Facepalm
+    else                      field
+    end
+  xpath = "//th[contains(text(), '%s')]" +                                       # The table that contains the Line Items
+          "/../th[contains(text()%s, '#{field}')]" +                             # Back up, find the label
+          "/../following-sibling::tr/td[1]/b[contains(text(), '#{numeral}')]" +  # Back up, find the nth row
+          "/../following-sibling::td//%s[contains(@title, '#{title}')]"       # Back up, find the input
+  kaikifs.set_approximate_field(
+    ApproximationsFactory.transpose_build(
+      xpath,
+      ['Item Line #', '',       'select'],
+      ['Line #',      '[1]',    'input'],
+      [nil,           '[2]',    nil]
+    ),
+    value
+  )
 end
 
 Transform /#\{\d+i\}/ do |v|
