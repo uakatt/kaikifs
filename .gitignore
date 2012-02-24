@@ -1,4 +1,7 @@
+Gemfile.lock
 loggy-log
+features/downloads
+features/logs
 features/screenshots
 features/stderr
 kaiki_gojira
