@@ -259,8 +259,9 @@ When /^I add that "([^"]*)"$/ do |child|
   else
     div =
       case
-      when child == 'Search Alias' then 'tab-SearchAlias-div'
-      else                              "tab-#{child.pluralize}-div"
+      when child == 'Search Alias'       then 'tab-SearchAlias-div'
+      when child == 'Supplier Diversity' then 'tab-SupplierDiversity-div'
+      else                                    "tab-#{child.pluralize}-div"
       end
 
     # click the (only) add button in the right tab. Example: Group > create new > Assignees
