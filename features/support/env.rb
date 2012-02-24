@@ -7,8 +7,9 @@ require 'yaml'
 
 class KaikiFSWorld
   SHARED_PASSWORDS_FILE = "shared_passwords.yaml"
-  username   = ENV['NETID']
-  password   = ENV['PASSWORD']
+  username   = ENV['KAIKI_NETID']
+  password   = ENV['KAIKI_PASSWORD']
+  env        = ENV['KAIKI_ENV'].split(',')
   if File.exist? SHARED_PASSWORDS_FILE
     shared_passwords = File.open(SHARED_PASSWORDS_FILE) { |h| YAML::load_file(h) }
     puts shared_passwords
@@ -19,9 +20,10 @@ class KaikiFSWorld
   end
   username ||= ask("NetID:  ")    { |q| q.echo = true }
   password ||= ask("Password:  ") { |q| q.echo = "*" }
+  env ||= [] << ask("Environment/URL:  ") { |q| q.echo = true; q.default='dev' }
+  puts env.inspect
 
-  env = 'dev'
-  @@kaikifs = KaikiFS::WebDriver.new(username, password, :envs => [env])
+  @@kaikifs = KaikiFS::WebDriver::KFS.new(username, password, :envs => env)
   @@kaikifs.mk_screenshot_dir(File.join(Dir::pwd, 'features', 'screenshots'))
   @@kaikifs.start_session
   @@kaikifs.maximize_ish

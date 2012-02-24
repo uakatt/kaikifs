@@ -12,12 +12,18 @@ require "base64"
 module KaikiFS
 end
 
-class KaikiFS::WebDriver
+module KaikiFS::WebDriver
+end
+
+class KaikiFS::WebDriver::Base
   include Log4r
   attr_reader :driver, :env, :username, :screenshot_dir, :log
   attr_accessor :pause_time, :record
   ENVS_FILE = "envs.json"
   DEFAULT_TIMEOUT = 8
+  MAIN_MENU_LINK = [:link_text, 'Main Menu']
+  def main_menu_link; MAIN_MENU_LINK; end
+
   extend Forwardable
   def_delegators :@driver, :close, :current_url, :execute_script, :page_source, :quit, :switch_to,
                            :window_handle, :window_handles
@@ -30,6 +36,12 @@ class KaikiFS::WebDriver
     @envs = options[:envs] ?
       @standard_envs.select { |k,v| options[:envs].include? k } :
       @standard_envs
+
+    if @envs.empty?
+      @envs = {
+        options[:envs].first => { "code" => options[:envs].first, "url"  => options[:envs].first }
+      }
+    end
 
     if @envs.keys.size == 1
       @env = @envs.keys.first
@@ -100,7 +112,7 @@ class KaikiFS::WebDriver
     set_field("//*[@name='backdoorId']", user)
     @driver.find_element(:css, 'input[value=login]').click
     @driver.switch_to.default_content
-    @driver.find_element(:link_text, 'Main Menu')  # 'main_menu' #=> 'Main Menu'
+    @driver.find_element(*main_menu_link)
   end
 
   def check_approximate_field(selectors)
@@ -288,7 +300,7 @@ class KaikiFS::WebDriver
   end
 
   def login_via_webauth
-    @driver.find_element(:link_text, 'Main Menu').click
+    @driver.find_element(*main_menu_link).click
     sleep 1
     @driver.find_element(:id, 'username').send_keys(@username)
     @driver.find_element(:id, 'password').send_keys(@password)
@@ -355,6 +367,11 @@ class KaikiFS::WebDriver
     @driver.execute_script("return document.evaluate(\"#{selector}\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.value;", nil)
   end
 
+  def safe_deselect_all(el)
+    el.deselect_all
+  rescue Selenium::WebDriver::Error::UnsupportedOperationError
+  end
+
   def set_approximate_field(selectors, value=nil)
     timeout = 2
     selectors.each do |selector|
@@ -418,18 +435,20 @@ class KaikiFS::WebDriver
       @log.debug "    set_field: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, #{locator})..."
       wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
       wait.until { driver.find_element(:xpath, locator) }
-      select = @driver.find_element(:xpath, locator)
-      select.click
-      pause
+      select = Selenium::WebDriver::Support::Select.new(@driver.find_element(:xpath, locator))
+      #select.click
+      #pause
 
-      option = select.find_elements( :tag_name => 'option' ).find do |option|
-          option.text == value
-      end
-      if option.nil?
-        puts "Error: Could not find an <option> with text: '#{value}'"
-        raise Selenium::WebDriver::Error::NoSuchElementError
-      end
-      option.click
+      #option = select.find_elements( :tag_name => 'option' ).find do |option|
+      #    option.text == value
+      #end
+      #if option.nil?
+      #  puts "Error: Could not find an <option> with text: '#{value}'"
+      #  raise Selenium::WebDriver::Error::NoSuchElementError
+      #end
+      #option.click
+      safe_deselect_all(select)
+      select.select_by(:text, value)
     when 'radio'
       @driver.find_element(:xpath, locator).click
     else
