@@ -30,6 +30,9 @@ Feature: KFSI-4479
     And I add that "Vendor Address"
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
+    And I show the "Supplier Diversity" tab
+    And I set the new "Supplier Diversity" to "AZ SMALL BUSINESS"
+    And I add that "Supplier Diversity"
     And I set the new "Arizona Sales Tax License Number" to "123456789AB"
     And I click "submit"
     And I click "yes"
@@ -63,6 +66,9 @@ Feature: KFSI-4479
     And I add that "Vendor Address"
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
+    And I show the "Supplier Diversity" tab
+    And I set the new "Supplier Diversity" to "AZ SMALL BUSINESS"
+    And I add that "Supplier Diversity"
     And I set the new "Arizona Sales Tax License Number" to "123456789AB"
     And I click "submit"
     And I click "yes"
@@ -89,6 +95,9 @@ Feature: KFSI-4479
     And I add that "Vendor Address"
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
+    And I show the "Supplier Diversity" tab
+    And I set the new "Supplier Diversity" to "AZ SMALL BUSINESS"
+    And I add that "Supplier Diversity"
     And I set the new "Arizona Sales Tax License Number" to "123456789AB"
     And I click "submit"
     And I click "yes"
