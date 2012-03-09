@@ -59,7 +59,6 @@ When /^I requeue all of the documents$/ do
     And I scroll to the image with alt text "Workflow"
     Then I should see "Document Requeuer was successfully scheduled"
     And I enlargen "Document Requeuer was successfully scheduled"
-    And I sleep for "5" seconds
     }
   end
 end
