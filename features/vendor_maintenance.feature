@@ -3,7 +3,7 @@ Feature: Vendor Maintenance
   Background:
     Given I am up top
 
-  @funky_test
+  @funky_test @incomplete
   Scenario: CFG001-PA-01
     Business Process is CFG001 - Cost Source
     Test Scenario is CFG001-PA-01

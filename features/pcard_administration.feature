@@ -3,7 +3,7 @@ Feature: Pcard Maintenance
   Background:
     Given I am up top
 
-  @funky_test
+  @funky_test @incomplete
   Scenario: PA1003-01
     Business Process is PA1003 Pcard Administration
     Test Scenario is PA1003-01 Create Reconciler Workgroup
@@ -36,7 +36,7 @@ Feature: Pcard Maintenance
     And I click "approve"
     # Then I should verify something?
 
-  @funky_test
+  @funky_test @incomplete
   Scenario: PA1003-02
     Business Process is PA1003 Pcard Administration
     Test Scenario is PA1003-02 Assign Reconciler to Workgroup
