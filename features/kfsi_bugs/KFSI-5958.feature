@@ -3,7 +3,7 @@ Feature: KFSI-5958
   Background:
     Given I am up top
 
-  @jira
+  @jira @incomplete
   Scenario: When a credit memo is processed, resulting payment is correctly ACH
 
     Given I am logged in
@@ -63,8 +63,6 @@ Feature: KFSI-5958
     When I open a doc search
     And I click "search"
     And I open the first one
-    #And I print "kaikifs.window_handle"
-    #And I print "kaikifs.window_handles"
     And I switch to the new window
     And I set the "Vendor Choice" to "Other"
     And I click "calculate"
@@ -81,14 +79,12 @@ Feature: KFSI-5958
 
     When I close that window
     And I backdoor as "kfs-test-sec36"
-    And I slow down
     And I am on the "central_admin" tab
     And I click the "Payment Request" portal link
     And I set the "Purchase Order #" to that "Purchase Order #"
     And I set the "Invoice Number" to now (%H%M%S)
     And I set the "Invoice Date" to now (%m/%d/%Y)
     And I set the "Vendor Invoice Amount" to "1000"
-    #And I sleep for 300 seconds
     And I click "continue"
     And I check "Immediate Pay"
     And I set the first Item's "Qty Invoiced" to "1"

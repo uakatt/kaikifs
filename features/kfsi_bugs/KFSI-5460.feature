@@ -91,7 +91,7 @@ Feature: KFSI-5460
 
     When I close that window
     And I backdoor as "kfs-test-sec36"
-    And I slow down
+    #And I slow down
     And I am on the "central_admin" tab
     And I click the "Payment Request" portal link
     And I set the "Purchase Order #" to that "Purchase Order #"
@@ -202,7 +202,7 @@ Feature: KFSI-5460
     # First Payment Requisition
     When I close that window
     And I backdoor as "kfs-test-sec36"
-    And I slow down
+    #And I slow down
     And I am on the "central_admin" tab
     And I click the "Payment Request" portal link
     And I set the "Purchase Order #" to that "Purchase Order #"
