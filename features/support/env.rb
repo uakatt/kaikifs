@@ -9,7 +9,8 @@ class KaikiFSWorld
   SHARED_PASSWORDS_FILE = "shared_passwords.yaml"
   username   = ENV['KAIKI_NETID']
   password   = ENV['KAIKI_PASSWORD']
-  env        = ENV['KAIKI_ENV'].split(',')
+  env        = ENV['KAIKI_ENV']
+  env.split(',') if env
   if File.exist? SHARED_PASSWORDS_FILE
     shared_passwords = File.open(SHARED_PASSWORDS_FILE) { |h| YAML::load_file(h) }
     puts shared_passwords
@@ -21,18 +22,24 @@ class KaikiFSWorld
   username ||= ask("NetID:  ")    { |q| q.echo = true }
   password ||= ask("Password:  ") { |q| q.echo = "*" }
   env ||= [] << ask("Environment/URL:  ") { |q| q.echo = true; q.default='dev' }
-  puts env.inspect
 
-  @@kaikifs = KaikiFS::WebDriver::KFS.new(username, password, :envs => env)
+  is_headless = true
+  if ENV['KAIKI_IS_HEADLESS']
+    is_headless = ENV['KAIKI_IS_HEADLESS'] =~ /1|true|yes/i
+  end
+  @@kaikifs = KaikiFS::WebDriver::KFS.new(username, password, :envs => env, :is_headless => is_headless)
   @@kaikifs.mk_screenshot_dir(File.join(Dir::pwd, 'features', 'screenshots'))
   @@kaikifs.start_session
   @@kaikifs.maximize_ish
   @@kaikifs.login_via_webauth
 
-  @@kaikifs.record[:document_number] = ENV['DOC_NUMBER']  if ENV['DOC_NUMBER']
-  @@kaikifs.record[:document_numbers] = ENV['DOC_NUMBERS'].split(',')  if ENV['DOC_NUMBERS']
+  @@kaikifs.record[:document_number] = ENV['KAIKI_DOC_NUMBER']  if ENV['KAIKI_DOC_NUMBER']
+  @@kaikifs.record[:document_numbers] = ENV['KAIKI_DOC_NUMBERS'].split(',')  if ENV['KAIKI_DOC_NUMBERS']
 
-  at_exit { @@kaikifs.quit }
+  at_exit do
+    @@kaikifs.quit
+    @@kaikifs.headless.destroy if is_headless
+  end
 
   def kaikifs; @@kaikifs; end
 end
