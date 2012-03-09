@@ -1,9 +1,9 @@
+@not_a_test
 Feature: Stuck Document
 
   Background:
     Given I am up top
 
-  @funky_test
   Scenario: Document Requeuer requeues a document successfully
 
     Given I am logged in
