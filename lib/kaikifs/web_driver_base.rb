@@ -18,7 +18,7 @@ end
 class KaikiFS::WebDriver::Base
   include Log4r
   attr_reader :driver, :env, :username, :screenshot_dir, :log
-  attr_accessor :pause_time, :record
+  attr_accessor :headless, :is_headless, :pause_time, :record
   ENVS_FILE = "envs.json"
   DEFAULT_TIMEOUT = 8
   MAIN_MENU_LINK = [:link_text, 'Main Menu']
@@ -47,7 +47,8 @@ class KaikiFS::WebDriver::Base
       @env = @envs.keys.first
     end
 
-    @pause_time = options[:pause_time] || 0.3
+    @pause_time  = options[:pause_time] || 0.3
+    @is_headless = options[:is_headless]
 
 
     @threads = []
@@ -252,6 +253,9 @@ class KaikiFS::WebDriver::Base
     height = h
     width  = "window.screen.availWidth  - #{-w}" if w <= 0
     height = "window.screen.availHeight - #{-h}" if h <= 0
+    @driver.manage.window.position= Selenium::WebDriver::Point.new(40,30)
+    max_width, max_height = @driver.execute_script("return [window.screen.availWidth, window.screen.availHeight];")
+    @driver.manage.window.resize_to(max_width-90, max_height-100)
     @driver.execute_script %[
       if (window.screen) {
         window.moveTo(#{x}, #{y});
@@ -467,6 +471,11 @@ class KaikiFS::WebDriver::Base
     @profile['browser.download.folderList'] = 2
     @profile['browser.helperApps.neverAsk.saveToDisk'] = "application/pdf"
     @profile['browser.link.open_newwindow'] = 3
+
+    if is_headless
+      @headless = Headless.new
+      @headless.start
+    end
 
     @driver = Selenium::WebDriver.for :firefox, :profile => @profile
     #@driver.manage.timeouts.implicit_wait = 3
