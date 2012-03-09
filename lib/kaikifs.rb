@@ -3,6 +3,7 @@ $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
 module KaikiFS
 end
 
+require 'headless'
 require 'json'
 
 require 'string'

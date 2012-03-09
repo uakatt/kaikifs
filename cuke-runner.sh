@@ -10,7 +10,7 @@ function usage {
   echo "3. cucumber --dry-run"
   echo "      Display undefined steps"
   echo ""
-  echo "4. cucumber --tags ~@cucumber_example"
+  echo "4. cucumber --tags ~@cucumber_example --tags ~@incomplete --tags ~@not_a_test"
   echo "      Run all cucumber tests, except for the cucumber examples"
   echo ""
   echo "5. cucumber features/kfsi_bugs/KFSI-1021.feature -r features"
@@ -22,7 +22,9 @@ if [[ $1 = "" ]]; then
   exit 1
 fi
 
-case $1 in
+command=$1; shift
+
+case $command in
 1)
   xdg-open ~/Documents/the-cucumber-book_b6_0.pdf
   ;;
@@ -33,10 +35,11 @@ case $1 in
   cucumber --dry-run
   ;;
 4)
-  cucumber --tags ~@cucumber_example
+  cucumber --tags ~@cucumber_example --tags ~@incomplete --tags ~@not_a_test $@
   ;;
 5)
-  cucumber features/kfsi_bugs/KFSI-$2.feature -r features
+  jira=$1; shift
+  cucumber features/kfsi_bugs/KFSI-${jira}.feature -r features $@
   ;;
 *)
   usage
