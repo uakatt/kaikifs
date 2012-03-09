@@ -30,6 +30,12 @@
     "update_source":    "release",
     "db_tns_name":      "//uaz-kf-d01.mosaic.arizona.edu:1521/UAZKFDMO"
   },
+  "prd": {
+    "code":             "prd",
+    "update_frequency": "F",
+    "update_source": "release",
+    "url": "https://financials.uaccess.arizona.edu"
+  },
   "stg": {
     "code":             "stg",
     "update_frequency": "M",
