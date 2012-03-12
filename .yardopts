@@ -1,0 +1,6 @@
+--markup "markdown"
+--title "KaikiFS"
+features/step_definitions/*.rb
+features/support/*.rb
+lib/**/*.rb -
+README.md LICENSE.md

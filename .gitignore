@@ -1,4 +1,5 @@
 demo.rb
+doc
 Gemfile.lock
 loggy-log
 features/downloads
@@ -7,3 +8,4 @@ features/screenshots
 features/stderr
 kaiki_gojira
 shared_passwords.yaml
+.yardoc
