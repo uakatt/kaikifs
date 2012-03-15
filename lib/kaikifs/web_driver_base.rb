@@ -19,9 +19,17 @@ class KaikiFS::WebDriver::Base
   include Log4r
   attr_reader :driver, :env, :username, :screenshot_dir, :log
   attr_accessor :headless, :is_headless, :pause_time, :record
+
+  # The basename of the json file that contains all environment information
   ENVS_FILE = "envs.json"
+
+  # The default timeout for Waits
   DEFAULT_TIMEOUT = 8
+
+  # The pair of selectors that will identify the Main Menu link to `find_element`
   MAIN_MENU_LINK = [:link_text, 'Main Menu']
+
+  # I think just a more attractive form of this constant?
   def main_menu_link; MAIN_MENU_LINK; end
 
   extend Forwardable
