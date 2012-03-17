@@ -70,7 +70,11 @@ class KaikiFS::WebDriver::Base
   end
 
 
-  ##### THIN WRAPPERS
+  # An extrnsion of Selenium::WebDriver's find_element. It receives the same `method` and `selector`
+  # arguments, and receives a third, optional argument: an options hash.
+  #
+  # By default, it will pass `method` and `selector` on to Selenium::WebDriver's
+  # `find_element`, retrying 4 more times whenever Selenium::WebDriver throws an `InvalidSelectorError`. By default, it will raise if a `NoSuchElementError`, or a `TimeOutError` is raised. If you pass in `:no_raise => true`, then it will return `nil` on these exceptions, rather than retry or raise.
   def find_element(method, selector, options={})
     retries = 4
 
@@ -90,6 +94,9 @@ class KaikiFS::WebDriver::Base
     end
   end
 
+  # Hide a visual vertical tab inside a document's layout. Accepts the "name" of the
+  # tab. Find the name of the tab by looking up the `title` of the `input` that is the
+  # close button. The title is everything after the word "close."
   def hide_tab(name)
     @log.debug "    hide_tab: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//input[@title='close #{name}']\")..."
     wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
@@ -98,6 +105,9 @@ class KaikiFS::WebDriver::Base
     pause
   end
 
+  # Show a visual vertical tab inside a document's layout. Accepts the "name" of the
+  # tab. Find the name of the tab by looking up the `title` of the `input` that is the
+  # open button. The title is everything after the word "open."
   def show_tab(name)
     @log.debug "    show_tab: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//input[@title='open #{name}']\")..."
     wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
@@ -434,6 +444,7 @@ class KaikiFS::WebDriver::Base
       @log.debug "    set_field: node_name is #{node_name.inspect}"
       @log.debug "    set_field: locator is #{locator.inspect}"
       # Make the field empty first
+      # REPLACE WITH CLEAR
       if not locator['"']  # @TODO UGLY UGLY workaround for now. If an xpath has double quotes in it... then I can't check if it's empty just yet.
         unless get_field(locator).empty?
           @driver.execute_script("return document.evaluate(\"#{locator}\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.value = '';", nil)
