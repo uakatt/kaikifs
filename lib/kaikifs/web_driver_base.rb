@@ -116,13 +116,7 @@ class KaikiFS::WebDriver::Base
     pause
   end
 
-  def show_complicated_tab(name)
-    @log.debug "    show_complicated_tab: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//input[@title='open #{name}']\")..."
-    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
-    wait.until { driver.find_element(:xpath, "//input[@title='open #{name}']") }
-    @driver.find_element(:xpath, "//input[@title='open #{name}']").click
-  end
-
+  # Switch to the default tab/window/frame, and backdoor login as `user`
   def backdoor_as(user)
     switch_to.default_content
     @log.debug "    backdoor_as: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//*[@name='backdoorId']\")..."
