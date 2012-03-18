@@ -1,0 +1,33 @@
+Group > create new > Organization Group
+  <div id="tab-DocumentOverview-div">
+    Description: //th/label[contains(text()[2], 'XXX')]/../following-sibling::td/input[1]
+    Org. Doc. #: //th/label[contains(text(),    'XXX')]/../following-sibling::td/input[1]
+    Explanation: //th/label[contains(text(),    'XXX')]/../following-sibling::td/input[1]
+  <div id="tab-Overview-div">
+    Group Id:        //th/div[contains(text(),    'XXX')]/../following-sibling::td/text()
+    Type Name:       //th/div[contains(text(),    'XXX')]/../following-sibling::td/text()
+    Group Namespace: //th/div[contains(text()[2], 'XXX')]/../following-sibling::td/select[1]
+    Group Name:      //th/div[contains(text(),    'XXX')]/../following-sibling::td/input[1]
+    Active?:         //th/div[contains(text(),    'XXX')]/../following-sibling::td/input[1]
+  <div id="tab-Attributes-div">
+    Chart Code:        //th[contains(text()[2], 'XXX')]/../following-sibling::tr/td/div/select[contains(@title, 'XXX')]  lookup at ../input[contains(@title, 'Search')]
+    Organization Code: //th[contains(text()[2], 'XXX')]/../following-sibling::tr/td/div/input[contains(@title, 'XXX')]   lookup at ../input[contains(@title, 'Search')]
+  <div id="tab-Assignees-div">
+    Type Code:         //th[contains(text(),    'XXX')]/../following-sibling::tr/td/select[contains(@title, 'XXX')]
+    Member Identifier: //th[contains(text()[2], 'XXX')]/../following-sibling::tr/td/input[contains(@title, 'XXX')]   lookup at ../input[contains(@title, 'Search')]
+    Name:              //th[contains(text(),    'XXX')]/../following-sibling::tr/td/div/text()
+    Active From Dt:    //th[contains(text(),    'XXX')]/../following-sibling::tr/td/input[contains(@title, 'XXX')]   cal at ../img[contains(@title, 'Date selector')]
+    Active To Dt:      //th[contains(text(),    'XXX')]/../following-sibling::tr/td/input[contains(@title, 'XXX')]   cal at ../img[contains(@title, 'Date selector')]
+    add button:        //td/div/input[contains(@src, 'add1.gif')]
+    delete button:     //td/div/input[contains(@src, 'delete1.gif')]
+  <div id="tab-AdHocRecipients-div">
+    Person Requests:
+      Action Requested:  //td[contains(text(), 'Person Requests')]/../following-sibling::tr/th[contains(text()[2], 'XXX')]/../following-sibling::tr/select[contains(@title, 'XXX')]
+      ...
+    Ad Hoc Group Requests:
+      Action Requested: //td[contains(text(), 'Ad Hoc Group Requests')]/../following-sibling::tr/th[contains(text()[2], 'XXX')]/../following-sibling::tr/select[contains(@title, 'XXX')]
+      ...
+  <div id="tab-RouteLog-div">
+    ...
+  buttons
+    ..
