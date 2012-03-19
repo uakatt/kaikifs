@@ -74,7 +74,10 @@ class KaikiFS::WebDriver::Base
   # arguments, and receives a third, optional argument: an options hash.
   #
   # By default, it will pass `method` and `selector` on to Selenium::WebDriver's
-  # `find_element`, retrying 4 more times whenever Selenium::WebDriver throws an `InvalidSelectorError`. By default, it will raise if a `NoSuchElementError`, or a `TimeOutError` is raised. If you pass in `:no_raise => true`, then it will return `nil` on these exceptions, rather than retry or raise.
+  # `find_element`, retrying 4 more times whenever Selenium::WebDriver throws an
+  # `InvalidSelectorError`. By default, it will raise if a `NoSuchElementError`, or a
+  # `TimeOutError` is raised. If you pass in `:no_raise => true`, then it will return `nil` on
+  # these exceptions, rather than retry or raise.
   def find_element(method, selector, options={})
     retries = 4
 
@@ -128,6 +131,9 @@ class KaikiFS::WebDriver::Base
     @driver.find_element(*main_menu_link)
   end
 
+  # Check the field that is expressed with `selectors` (the first one that is found).
+  # `selectors` is typically an Array returned by `ApproximationsFactory`, but it could be
+  # hand-generated.
   def check_approximate_field(selectors)
     timeout = DEFAULT_TIMEOUT
     selectors.each do |selector|
@@ -143,6 +149,9 @@ class KaikiFS::WebDriver::Base
     raise Selenium::WebDriver::Error::NoSuchElementError
   end
 
+  # Uncheck the field that is expressed with `selectors` (the first one that is found).
+  # `selectors` is typically an Array returned by `ApproximationsFactory`, but it could be
+  # hand-generated.
   def uncheck_approximate_field(selectors)
     selectors.each do |selector|
       begin
@@ -201,7 +210,8 @@ class KaikiFS::WebDriver::Base
     raise Selenium::WebDriver::Error::NoSuchElementError
   end
 
-  # Must follow this with a call to #switch_to, so that you know what window you're on
+  # Close all windows that have a current url of "about:blank". Must follow this with a call to
+  # `#switch_to, so that you know what window you're on.
   def close_blank_windows
     @driver.window_handles.each do |handle|
       @driver.switch_to.window(handle)
@@ -209,13 +219,18 @@ class KaikiFS::WebDriver::Base
     end
   end
 
+  # Temporarily redirects all stdout to `@stderr_log`
   def dont_stdout!
     orig_stdout = $stdout
-    $stdout = File.open(@stderr_log, 'a')  # redirect stdout to /dev/null
+    $stdout = File.open(@stderr_log, 'a')
     yield if block_given?
     $stdout = orig_stdout  # restore stdout
   end
 
+  # Enlargens the text of an element, using `method` and `locator`, by changing the `font-size`
+  # in the style to be `3em`. It uses the following Javascript:
+  #
+  #     hlt = function(c) { c.style.fontSize='3em'; }; return hlt(arguments[0]);
   def enlargen(method, locator)
     @log.debug "    enlargen: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(#{method}, #{locator})..."
     wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
@@ -260,6 +275,11 @@ class KaikiFS::WebDriver::Base
     end
   end
 
+  # "Maximize" the current window using Selenium's `manage.window.resize_to`. This script does
+  # not use the window manager's "maximize" capability, but rather resizes the window. By
+  # default, it positions the window 64 pixels below and to the right of the top left corner,
+  # and sizes the window to be 128 pixels smaller both vretically and horizontally than the
+  # available space.
   def maximize_ish(x = 64, y = 64, w = -128, h = -128)
     width  = w
     height = h
@@ -282,11 +302,13 @@ class KaikiFS::WebDriver::Base
     Dir::mkdir(@screenshot_dir)
   end
 
+  # Pause for `@pause_time` by default, or for `time` seconds
   def pause(time = nil)
     @log.debug "  breathing..."
     sleep (time or @pause_time)
   end
 
+  # Select a frame by its `id`
   def select_frame(id)
     @driver.switch_to().frame(id)
     pause
@@ -311,8 +333,9 @@ class KaikiFS::WebDriver::Base
     end
   end
 
+  # Take a screenshot, and save it to `@screenshot_dir` by the name `#{name}.png`
   def screenshot(name)
-      @driver.save_screenshot(File.join(@screenshot_dir, "#{name}.png"))
+    @driver.save_screenshot(File.join(@screenshot_dir, "#{name}.png"))
   end
 
   def login_via_webauth
@@ -383,6 +406,8 @@ class KaikiFS::WebDriver::Base
     @driver.execute_script("return document.evaluate(\"#{selector}\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.value;", nil)
   end
 
+  # Deselect all `<option>s` within a `<select>`, suppressing any `UnsupportedOperationError`
+  # that Selenium may throw
   def safe_deselect_all(el)
     el.deselect_all
   rescue Selenium::WebDriver::Error::UnsupportedOperationError
@@ -495,6 +520,7 @@ class KaikiFS::WebDriver::Base
     @driver.navigate.to (@envs[@env]['url'] || "https://kf-#{@env}.mosaic.arizona.edu/kfs-#{@env}")
   end
 
+  # Create and execute a `Selenium::WebDriver::Wait` for finding an element by `method` and `selector`
   def wait_for(method, locator)
     @log.debug "    wait_for: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(#{method}, #{locator})..."
     wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
