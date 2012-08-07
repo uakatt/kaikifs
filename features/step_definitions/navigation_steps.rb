@@ -42,10 +42,10 @@ When /^I wait for that document to appear in my Action List$/i do
   wait_time = 1
 
   begin
-    wait = Selenium::WebDriver::Wait.new(:timeout => 10)
-    wait.until { kaikifs.find_element(:xpath, "//a[contains(text(), '#{doc_nbr}')]") }
+    wait = Selenium::WebDriver::Wait.new(:timeout => 4).
+      until { kaikifs.find_element(:xpath, "//a[contains(text(), '#{doc_nbr}')]") }
     kaikifs.find_element(:xpath, "//a[contains(text(), '#{doc_nbr}')]").text
-  rescue Selenium::WebDriver::Error::NoSuchElementError
+  rescue Selenium::WebDriver::Error::TimeOutError => command_error
     refresh_tries -= 1
     raise command_error if refresh_tries == 0
     kaikifs.pause wait_time

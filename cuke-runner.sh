@@ -14,7 +14,7 @@ function usage {
   echo "      Run all cucumber tests, except for the cucumber examples"
   echo ""
   echo "5. cucumber features/kfsi_bugs/KFSI-1021.feature -r features"
-  echo "      Run a specific feature file"
+  echo "      Run a specific KFSI feature file (eg cuke_runner.sh 5 1021)"
 }
 
 if [[ $1 = "" ]]; then
