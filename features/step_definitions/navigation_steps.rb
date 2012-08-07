@@ -7,6 +7,7 @@ end
 Given /^I am on the "([^"]*)" tab$/ do |tab|
   kaikifs.switch_to.default_content
   kaikifs.find_element(:link_text, tab.titleize).click  # 'main_menu' #=> 'Main Menu'
+  # TODO rescue from Selenium::WebDriver::Error::StaleElementReferenceError and retry
 end
 
 # WD
@@ -38,7 +39,7 @@ end
 When /^I wait for that document to appear in my Action List$/i do
   doc_nbr = kaikifs.record[:document_number]
   refresh_tries = 5
-  wait_time = 6
+  wait_time = 1
 
   begin
     wait = Selenium::WebDriver::Wait.new(:timeout => 10)
@@ -47,7 +48,7 @@ When /^I wait for that document to appear in my Action List$/i do
   rescue Selenium::WebDriver::Error::NoSuchElementError
     refresh_tries -= 1
     raise command_error if refresh_tries == 0
-    sleep wait_time
+    kaikifs.pause wait_time
     # kaikifs.click_and_wait "refresh"
     retry
   end
