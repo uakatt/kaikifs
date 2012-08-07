@@ -29,8 +29,8 @@ Feature: KFSI-5772
     And I add that "Vendor Address"
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
-    And I click "route" and wait
-    And I click "yes" and wait
+    And I click "route"
+    And I click "yes"
     Then I should see "Document was successfully submitted."
     When I record this document number
     And I record this "Vendor Name"
@@ -44,9 +44,9 @@ Feature: KFSI-5772
     And I add a Person Request with the following:
       | Action Requested | APPROVE         |
       | Person           | kfs-test-sec1   |
-    And I click "send ad hoc request" and wait
+    And I click "send ad hoc request"
     And I sleep for "2" seconds
-    And I click "reload" and wait
+    And I click "reload"
     Then I should see "AdHoc Requests have been sent."
     And I should see "This is a note."
 

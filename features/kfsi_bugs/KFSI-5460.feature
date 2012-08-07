@@ -4,7 +4,7 @@ Feature: KFSI-5460
     Given I am up top
 
   @jira
-  Scenario: Receiving payment request job approves receiving node on preq with correct tax amount
+  Scenario: Receiving preq job approves receiving node on preq with correct tax amount
 
     Given I am logged in
     And I am on the "main_menu" tab
@@ -114,7 +114,7 @@ Feature: KFSI-5460
     And I click "submit"
 
   @jira
-  Scenario: Receiving payment request job approves receiving node on 3x preqs with correct tax amounts
+  Scenario: Receiving preq job approves receiving node on 3x preqs with correct tax amounts
 
     Given I am logged in
     And I am on the "main_menu" tab
