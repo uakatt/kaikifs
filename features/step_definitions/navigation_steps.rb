@@ -46,10 +46,11 @@ When /^I wait for that document to appear in my Action List$/i do
       until { kaikifs.find_element(:xpath, "//a[contains(text(), '#{doc_nbr}')]") }
     kaikifs.find_element(:xpath, "//a[contains(text(), '#{doc_nbr}')]").text
   rescue Selenium::WebDriver::Error::TimeOutError => command_error
+    puts "#{refresh_tries} retries left... #{Time.now}"
     refresh_tries -= 1
     raise command_error if refresh_tries == 0
     kaikifs.pause wait_time
-    # kaikifs.click_and_wait "refresh"
+    kaikifs.click_and_wait :name, "methodToCall.start"  # 'refresh'
     retry
   end
 end
