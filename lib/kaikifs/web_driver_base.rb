@@ -124,9 +124,19 @@ class KaikiFS::WebDriver::Base
   # Switch to the default tab/window/frame, and backdoor login as `user`
   def backdoor_as(user)
     switch_to.default_content
-    @log.debug "    backdoor_as: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//*[@name='backdoorId']\")..."
-    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
-    wait.until { driver.find_element(:xpath, "//*[@name='backdoorId']") }
+    retries = 2
+    begin
+      @log.debug "    backdoor_as: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//*[@name='backdoorId']\")..."
+      wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
+      wait.until { driver.find_element(:xpath, "//*[@name='backdoorId']") }
+    rescue Selenium::WebDriver::Error::TimeOutError => error
+      raise e if retries == 0
+      @log.debug "    backdoor_as: Page is likely boned. Navigating back home..."
+      @driver.navigate.to (@envs[@env]['url'] || "https://kf-#{@env}.mosaic.arizona.edu/kfs-#{@env}")
+      retries -= 1
+      pause
+      retry
+    end
     set_field("//*[@name='backdoorId']", user)
     @driver.find_element(:css, 'input[value=login]').click
     @driver.switch_to.default_content
