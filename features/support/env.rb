@@ -27,7 +27,10 @@ class KaikiFSWorld
   if ENV['KAIKI_IS_HEADLESS']
     is_headless = ENV['KAIKI_IS_HEADLESS'] =~ /1|true|yes/i
   end
-  @@kaikifs = KaikiFS::WebDriver::KFS.new(username, password, :envs => env, :is_headless => is_headless)
+
+  firefox_profile = ENV['KAIKI_FIREFOX_PROFILE']
+  firefox_path    = ENV['KAIKI_FIREFOX_PATH']
+  @@kaikifs = KaikiFS::WebDriver::KFS.new(username, password, :envs => env, :is_headless => is_headless, :firefox_profile => firefox_profile, :firefox_path => firefox_path)
   @@kaikifs.mk_screenshot_dir(File.join(Dir::pwd, 'features', 'screenshots'))
   @@kaikifs.start_session
   @@kaikifs.maximize_ish
