@@ -73,15 +73,17 @@ Feature: KFSI-5783
 
     When I record this document number
     When I record this "Requisition #"
-    And I backdoor as "kdenman"
-    And I open my Action List to the last page
+    And I backdoor as "csmith11"
+    And I open my Action List, refreshing until that document appears
+    #And I open my Action List to the last page
     And I pause
     And I open that document
     And I click "approve"
     Then I should see my Action List
 
     When I backdoor as "kfs-test-sec22"
-    And I open my Action List to the last page
+    And I open my Action List, refreshing until that document appears
+    #And I open my Action List to the last page
     And I pause
     And I open that document
     And I click "approve"

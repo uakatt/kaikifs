@@ -13,7 +13,7 @@ Feature: KFSI-1063
     And I set the "Description" to something like "testing: KFSI-1063"
     And I set the new "Vendor Name" to "KFSI-1063 #{4i}"
     And I set the new "Vendor Type" to "Purchase Order"
-    And I set the new "Tax Number" to "99#{5i}99"
+    And I set the new "Tax Number" to "987#{3i}789"
     And I set the new "Tax Number Type" radio to "SSN"
     And I set the new "Ownership Type" to "INDIVIDUAL/SOLE PROPRIETOR"
     And I set the new "Conflict of Interest" to "None"

@@ -3,7 +3,7 @@ Feature: KFSI-5460
   Background:
     Given I am up top
 
-  @jira
+    @jira @incomplete
   Scenario: Receiving preq job approves receiving node on preq with correct tax amount
 
     Given I am logged in
@@ -44,7 +44,7 @@ Feature: KFSI-5460
 
     When I record this document number
     When I record this "Requisition #"
-    And I backdoor as "kdenman"
+    And I backdoor as "csmith11"
     And I open my Action List to the last page
     And I open that document
     And I click "approve"
@@ -154,7 +154,7 @@ Feature: KFSI-5460
 
     When I record this document number
     When I record this "Requisition #"
-    And I backdoor as "kdenman"
+    And I backdoor as "csmith11"
     And I open my Action List to the last page
     And I open that document
     And I click "approve"
