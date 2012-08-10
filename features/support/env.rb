@@ -13,7 +13,7 @@ class KaikiFSWorld
   env.split(',') if env
   if File.exist? SHARED_PASSWORDS_FILE
     shared_passwords = File.open(SHARED_PASSWORDS_FILE) { |h| YAML::load_file(h) }
-    puts shared_passwords
+    #puts shared_passwords
     if password.nil? and username and shared_passwords.keys.any? { |user| username[user] }
       user_group = shared_passwords.keys.select { |user| username[user] }[0]
       password = shared_passwords[user_group]

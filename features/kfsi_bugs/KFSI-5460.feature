@@ -113,7 +113,7 @@ Feature: KFSI-5460
     And I set the first Item's "Qty Received" to "1"
     And I click "submit"
 
-  @jira
+  @jira @incomplete
   Scenario: Receiving preq job approves receiving node on 3x preqs with correct tax amounts
 
     Given I am logged in

@@ -26,19 +26,24 @@ command=$1; shift
 
 case $command in
 1)
+  echo xdg-open ~/Documents/the-cucumber-book_b6_0.pdf
   xdg-open ~/Documents/the-cucumber-book_b6_0.pdf
   ;;
 2)
+  echo cucumber
   cucumber
   ;;
 3)
+  echo cucumber --dry-run
   cucumber --dry-run
   ;;
 4)
+  echo cucumber --tags ~@cucumber_example --tags ~@incomplete --tags ~@not_a_test $@
   cucumber --tags ~@cucumber_example --tags ~@incomplete --tags ~@not_a_test $@
   ;;
 5)
   jira=$1; shift
+  echo cucumber features/kfsi_bugs/KFSI-${jira}.feature -r features $@
   cucumber features/kfsi_bugs/KFSI-${jira}.feature -r features $@
   ;;
 *)
