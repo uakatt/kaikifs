@@ -26,6 +26,9 @@ class KaikiFS::WebDriver::Base
   # The default timeout for Waits
   DEFAULT_TIMEOUT = 8
 
+  # The default dimensions for the headless display
+  DEFAULT_DIMENSIONS = "1024x768x24"
+
   # The pair of selectors that will identify the Main Menu link to `find_element`
   MAIN_MENU_LINK = [:link_text, 'Main Menu']
 
@@ -531,7 +534,7 @@ class KaikiFS::WebDriver::Base
     end
 
     if is_headless
-      @headless = Headless.new
+      @headless = Headless.new(:dimensions => DEFAULT_DIMENSIONS)
       @headless.start
     end
 

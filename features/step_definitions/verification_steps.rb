@@ -19,6 +19,8 @@ end
 # WD
 Then /^I should see "([^"]*)" in the "([^"]*)" iframe$/ do |text, frame|
   kaikifs.select_frame(frame+"IFrame")
+  wait = Selenium::WebDriver::Wait.new(:timeout => 8)
+  wait.until { kaikifs.find_element(:xpath, "//div[@id='workarea']") }
   kaikifs.is_text_present(text).should == true
   kaikifs.switch_to.default_content
   kaikifs.pause(1)

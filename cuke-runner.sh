@@ -15,6 +15,9 @@ function usage {
   echo ""
   echo "5. cucumber features/kfsi_bugs/KFSI-1021.feature -r features"
   echo "      Run a specific KFSI feature file (eg cuke_runner.sh 5 1021)"
+  echo ""
+  echo "6. cucumber features/kfsi_bugs/KFSI-1021.feature -s -r features"
+  echo "      Run a specific KFSI feature file (eg cuke_runner.sh 6 1021)"
 }
 
 if [[ $1 = "" ]]; then
@@ -45,6 +48,11 @@ case $command in
   jira=$1; shift
   echo cucumber features/kfsi_bugs/KFSI-${jira}.feature -r features $@
   cucumber features/kfsi_bugs/KFSI-${jira}.feature -r features $@
+  ;;
+6)
+  jira=$1; shift
+  echo cucumber features/kfsi_bugs/KFSI-${jira}.feature -s -r features $@
+  cucumber features/kfsi_bugs/KFSI-${jira}.feature -s -r features $@
   ;;
 *)
   usage
