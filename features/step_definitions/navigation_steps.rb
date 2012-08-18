@@ -94,6 +94,12 @@ When /^I click "([^"]*)"$/ do |link|
 end
 
 # WD
+# Clicks a link based on its text
+When /^I click the "([^"]*)" link$/ do |text|
+    kaikifs.click_and_wait :link, text
+end
+
+# WD
 # Clicks a button based on its name
 When /^I click the "([^"]*)" submit button$/ do |action|
     kaikifs.click_and_wait :name, "methodToCall.#{action.gsub(/ /, '').camelize(:lower)}"

@@ -41,7 +41,7 @@ Then /^I shouldn't get an HTTP Status (\d+)$/ do |status_no|
   end
 end
 
+# WD
 Then /^I shouldn't see an incident report/ do
-  kaikifs.pause(1)
   kaikifs.is_text_present('Incident Report').should_not == true
 end
