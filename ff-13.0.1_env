@@ -2,3 +2,16 @@ export KAIKI_NETID=kfs-test-sec1
 export KAIKI_ENV=dev
 export KAIKI_FIREFOX_PROFILE=ff-13.0.1
 export KAIKI_FIREFOX_PATH=/home/sam/code/firefox/firefox-13.0.1/firefox
+
+# WARNING: feature totally exits, for use with asciiio.py
+feature () {
+  for f in $(find features ! -path "*/example_syntax/*" -name "*${1}*.feature")
+  do
+    echo -e "Running \033[1mcucumber ${f} -s -r features\033[0m"
+    cucumber ${f} -s -r features
+  done
+
+  exit
+}
+
+export -f feature

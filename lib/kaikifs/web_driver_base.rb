@@ -290,19 +290,28 @@ class KaikiFS::WebDriver::Base
     end
   end
 
-  # "Maximize" the current window using Selenium's `manage.window.resize_to`. This script does
-  # not use the window manager's "maximize" capability, but rather resizes the window. By
-  # default, it positions the window 64 pixels below and to the right of the top left corner,
-  # and sizes the window to be 128 pixels smaller both vretically and horizontally than the
-  # available space.
+  # "Maximize" the current window using Selenium's `manage.window.resize_to`. This script
+  # does not use the window manager's "maximize" capability, but rather resizes the window.
+  # By default, it positions the window 64 pixels below and to the right of the top left
+  # corner, and sizes the window to be 128 pixels smaller both vretically and horizontally
+  # than the available space.
   def maximize_ish(x = 64, y = 64, w = -128, h = -128)
+    if is_headless
+      x = 0; y = 0; w = -2; h = -2
+    end
     width  = w
     height = h
     width  = "window.screen.availWidth  - #{-w}" if w <= 0
     height = "window.screen.availHeight - #{-h}" if h <= 0
-    @driver.manage.window.position= Selenium::WebDriver::Point.new(40,30)
-    max_width, max_height = @driver.execute_script("return [window.screen.availWidth, window.screen.availHeight];")
-    @driver.manage.window.resize_to(max_width-90, max_height-100)
+    if is_headless
+      @driver.manage.window.position= Selenium::WebDriver::Point.new(0,0)
+      max_width, max_height = @driver.execute_script("return [window.screen.availWidth, window.screen.availHeight];")
+      @driver.manage.window.resize_to(max_width, max_height)
+    else
+      @driver.manage.window.position= Selenium::WebDriver::Point.new(40,30)
+      max_width, max_height = @driver.execute_script("return [window.screen.availWidth, window.screen.availHeight];")
+      @driver.manage.window.resize_to(max_width-90, max_height-100)
+    end
     @driver.execute_script %[
       if (window.screen) {
         window.moveTo(#{x}, #{y});
