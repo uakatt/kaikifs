@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="https://kf-stg.mosaic.arizona.edu/" />
+<title>B2B PO</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">B2B PO</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/kfs-stg/portal.do?selectedTab=main</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Shop Catalogs</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>iframeportlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>iframeportlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=img[alt=&quot;Office Depot&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>typeAndWait</td>
+	<td>id=mainSearchField</td>
+	<td>post it note</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=quantityBox0</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=skuListFormID_INDEX_0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>xpath=(//a[contains(text(),'Check Out')])[3]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>name=cmd_continue</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>name=iframeportlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=button[type=&quot;button&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>name=iframeportlet</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=document.documentHeader.documentDescription</td>
+	<td>Test Case</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=tab-DocumentOverview-imageToggle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=tab-Delivery-imageToggle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=tab-Vendor-imageToggle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=tab-AccountingLines5-imageToggle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=document.item[0].newSourceLine.chartOfAccountsCode</td>
+	<td>label=UA</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=document.item[0].newSourceLine.accountNumber</td>
+	<td>1080000</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=document.item[0].newSourceLine.financialObjectCode</td>
+	<td>5230</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=document.item[0].newSourceLine.accountLinePercent</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>name=methodToCall.insertSourceLine.line0.anchoraccountingSourceAnchor</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>name=methodToCall.calculate</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>name=methodToCall.route</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=tab-RouteLog-imageToggle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>routeLogIFrame</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=td.tabtable2-mid &gt; a &gt; img</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>
