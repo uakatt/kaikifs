@@ -2,11 +2,11 @@ demo.rb
 doc
 Gemfile.lock
 loggy-log
-features/downloads
+features/downloads/*.pdf
 features/logs/20*
-features/screenshots
-features/stderr
+features/screenshots/20*
+features/stderr/20*
+features/videos/*.*
 kaiki_gojira
 shared_passwords.yaml
 .yardoc
-features/videos
