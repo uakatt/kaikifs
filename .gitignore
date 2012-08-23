@@ -6,7 +6,8 @@ features/downloads/*.pdf
 features/logs/20*
 features/screenshots/20*
 features/stderr/20*
-features/videos/*.*
+features/videos/*.mov
+features/videos/*.mpg
 kaiki_gojira
 shared_passwords.yaml
 .yardoc
