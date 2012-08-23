@@ -3,7 +3,7 @@ doc
 Gemfile.lock
 loggy-log
 features/downloads
-features/logs
+features/logs/20*
 features/screenshots
 features/stderr
 kaiki_gojira
