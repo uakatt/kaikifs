@@ -63,10 +63,8 @@ end
 
 After do |scenario|
 #  if scenario.failed?
-  #  puts "Failed i guess"
     kaikifs.headless.video.stop_and_save(video_path(scenario)) if kaikifs.is_headless
 #  else
-#    puts "Succeeded maybe"
 #    headless.video.stop_and_discard
 #  end
 end
@@ -77,7 +75,11 @@ def video_path(scenario)
   #f.puts scenario.methods.sort
   #f.puts scenario.file_colon_line
   #f.close
-  "features/videos/#{scenario.file_colon_line.split(':')[0]}.mov"
-  basename = File.basename(scenario.file_colon_line.split(':')[0])
+  #"features/videos/#{scenario.file_colon_line.split(':')[0]}.mov"
+  #basename = File.basename(scenario.file_colon_line.split(':')[0])
+  basename = File.basename(scenario.file_colon_line)
+  if basename =~ /^(.+):(\d+)$/
+    basename = "#{$1}__%04d" % $2.to_i
+  end
   File.join(Dir::pwd, 'features', 'videos', basename+".mov")
 end
