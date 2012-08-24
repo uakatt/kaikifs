@@ -37,7 +37,7 @@ end
 
 Cucumber::Rake::Task.new(:ci_features) do |t|
   set_env_defaults
-  t.cucumber_opts = "--format html --tags ~@cucumber_example --tags ~@incomplete --tags ~@not_a_test"
+  t.cucumber_opts = "--format progress --tags ~@cucumber_example --tags ~@incomplete --tags ~@not_a_test"
 end
 
 
