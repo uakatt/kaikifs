@@ -5,6 +5,13 @@ require 'cucumber/rake/task'
 # Getting a weird warning about CLEAN...
 #CLEAN = FileList['features/logs/*']
 
+# Rake stuff needs to be non-interactive. So we'll set the things that will make it non-interactive.
+def set_env_defaults
+  ENV['KAIKI_NETID'] = "kfs-test-sec1" if ENV['KAIKI_NETID'].nil?
+  ENV['KAIKI_ENV']   = "dev"           if ENV['KAIKI_ENV'].nil?
+end
+
+
 # Experimental... not sure we'll use this...
 task :merge_videos do
   Dir.glob("features/videos/*__*.mov").group_by {|n| n =~ /^(.+)__(\d+)\.mov/; $1 }.each do |prefix,videos|
@@ -22,13 +29,14 @@ task :merge_videos do
   end
 end
 
-
 Cucumber::Rake::Task.new(:features) do |t|
+  set_env_defaults
   t.cucumber_opts = "--format pretty --tags ~@cucumber_example --tags ~@incomplete --tags ~@not_a_test"
 end
 
 
 task :feature, :name do |t, args|
+  set_env_defaults
   feature = `find features ! -path "*/example_syntax/*" -name "*#{args[:name]}*.feature"`
   break if feature.empty?
   feature = feature.split(/\n/).first
@@ -42,6 +50,7 @@ end
 
 
 task :scenario, :name, :line do |t, args|
+  set_env_defaults
   feature = `find features ! -path "*/example_syntax/*" -name "*#{args[:name]}*.feature"`
   break if feature.empty?
   feature = feature.split(/\n/).first
@@ -53,3 +62,4 @@ task :scenario, :name, :line do |t, args|
 
   Rake::Task["cuke_feature"].invoke
 end
+
