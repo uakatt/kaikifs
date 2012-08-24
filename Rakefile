@@ -35,6 +35,12 @@ Cucumber::Rake::Task.new(:features) do |t|
 end
 
 
+Cucumber::Rake::Task.new(:ci_features) do |t|
+  set_env_defaults
+  t.cucumber_opts = "--format html --tags ~@cucumber_example --tags ~@incomplete --tags ~@not_a_test"
+end
+
+
 task :feature, :name do |t, args|
   set_env_defaults
   feature = `find features ! -path "*/example_syntax/*" -name "*#{args[:name]}*.feature"`
