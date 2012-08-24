@@ -543,6 +543,8 @@ class KaikiFS::WebDriver::Base
     end
 
     if is_headless
+      # Possibly later we can use different video capture options...
+      #video_capture_options = {:codec => 'mpeg4', :tmp_file_path => "/tmp/.headless_ffmpeg_#{@headless.display}.mp4", :log_file_path => 'foo.log'}
       @headless = Headless.new(:dimensions => DEFAULT_DIMENSIONS)
       @headless.start
     end

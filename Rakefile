@@ -1,5 +1,9 @@
 require 'rake/clean'
-CLEAN = FileList['features/logs/*']
+require 'cucumber'
+require 'cucumber/rake/task'
+
+# Getting a weird warning about CLEAN...
+#CLEAN = FileList['features/logs/*']
 
 # Experimental... not sure we'll use this...
 task :merge_videos do
@@ -16,4 +20,36 @@ task :merge_videos do
     FFMpegFunctions.concatenate(prefix+".mpg", new_videos)
     FFMpegFunctions.transcode(  prefix+".mpg", final_merged_file, '-qscale 2')
   end
+end
+
+
+Cucumber::Rake::Task.new(:features) do |t|
+  t.cucumber_opts = "--format pretty --tags ~@cucumber_example --tags ~@incomplete --tags ~@not_a_test"
+end
+
+
+task :feature, :name do |t, args|
+  feature = `find features ! -path "*/example_syntax/*" -name "*#{args[:name]}*.feature"`
+  break if feature.empty?
+  feature = feature.split(/\n/).first
+
+  Cucumber::Rake::Task.new(:cuke_feature, "Run a single feature") do |t|
+    t.cucumber_opts = "--format pretty #{feature} -s -r features"
+  end
+
+  Rake::Task["cuke_feature"].invoke
+end
+
+
+task :scenario, :name, :line do |t, args|
+  feature = `find features ! -path "*/example_syntax/*" -name "*#{args[:name]}*.feature"`
+  break if feature.empty?
+  feature = feature.split(/\n/).first
+  line = args[:line]
+
+  Cucumber::Rake::Task.new(:cuke_feature, "Run a single scenario") do |t|
+    t.cucumber_opts = "--format pretty #{feature}:#{line} -s -r features"
+  end
+
+  Rake::Task["cuke_feature"].invoke
 end
