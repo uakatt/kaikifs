@@ -7,6 +7,7 @@ require 'headless'
 require 'json'
 
 require 'string'
+require 'file'
 require 'kaikifs/web_driver_base'
 require 'kaikifs/web_driver_kfs'
 require 'kaikifs/web_driver_kc'
