@@ -3,7 +3,7 @@ Feature: Pcard Maintenance
   Background:
     Given I am up top
 
-  @funky_test @incomplete
+  @funky_test
   Scenario: PA1003-01
     Business Process is PA1003 Pcard Administration
     Test Scenario is PA1003-01 Create Reconciler Workgroup
@@ -23,10 +23,10 @@ Feature: Pcard Maintenance
     And I set the "Organization Code" to "PCRD"
     And I click "submit"
     And I show the "Route Log" tab
-    Then I should see "ID:" in the "routeLog" iframe
-    And  I should see "Actions Taken" in the "routeLog" iframe
-    And  I should see "Pending Action Requests" in the "routeLog" iframe
-    And  I should see "ENROUTE" in the "routeLog" iframe
+    Then I should see "ID:" in the route log
+    And  I should see "Actions Taken" in the route log
+    And  I should see "Pending Action Requests" in the route log
+    And  I should see "ENROUTE" in the route log
     # In the functional scenario, the document should automatically go to final.
     # Now a member of "UA PACS PCard Administrators" must approve.
     When I record this document number
@@ -34,9 +34,8 @@ Feature: Pcard Maintenance
     And I open my Action List
     And I open that document
     And I click "approve"
-    # Then I should verify something?
 
-  @funky_test @incomplete
+  @funky_test
   Scenario: PA1003-02
     Business Process is PA1003 Pcard Administration
     Test Scenario is PA1003-02 Assign Reconciler to Workgroup
@@ -61,7 +60,7 @@ Feature: Pcard Maintenance
     And I add that "Assignee"
     And I click "submit"
     And I show the "Route Log" tab
-    Then I should see "ID:" in the "routeLog" iframe
-    And  I should see "Actions Taken" in the "routeLog" iframe
-    And  I should see "Pending Action Requests" in the "routeLog" iframe
-    And  I should see "ENROUTE" in the "routeLog" iframe
+    Then I should see "ID:" in the route log
+    And  I should see "Actions Taken" in the route log
+    And  I should see "Pending Action Requests" in the route log
+    And  I should see "ENROUTE" in the route log

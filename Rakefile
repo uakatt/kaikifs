@@ -69,3 +69,35 @@ task :scenario, :name, :line do |t, args|
   Rake::Task["cuke_feature"].invoke
 end
 
+task :vet_feature, :name do |t, args|
+  set_env_defaults
+  feature = `find features ! -path "*/example_syntax/*" -name "*#{args[:name]}*.feature"`
+  break if feature.empty?
+  feature = feature.split(/\n/).first
+
+  Cucumber::Rake::Task.new(:cuke_feature, "Run a single feature") do |t|
+    t.cucumber_opts = "--format pretty #{feature} -s -r features"
+  end
+
+  5.times do
+    Rake::Task["cuke_feature"].reenable
+    Rake::Task["cuke_feature"].invoke
+  end
+end
+
+task :vet, :name, :line do |t, args|
+  set_env_defaults
+  feature = `find features ! -path "*/example_syntax/*" -name "*#{args[:name]}*.feature"`
+  break if feature.empty?
+  feature = feature.split(/\n/).first
+  line = args[:line]
+
+  Cucumber::Rake::Task.new(:cuke_scenario, "Run a single scenario") do |t|
+    t.cucumber_opts = "--format pretty #{feature}:#{line} -s -r features"
+  end
+
+  10.times do
+    Rake::Task["cuke_scenario"].reenable
+    Rake::Task["cuke_scenario"].invoke
+  end
+end

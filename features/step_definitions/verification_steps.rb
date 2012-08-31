@@ -27,6 +27,35 @@ Then /^I should see "([^"]*)" in the "([^"]*)" iframe$/ do |text, frame|
   kaikifs.select_frame("iframeportlet")
 end
 
+# WD
+Then /^I should see "([^"]*)" in the route log$/ do |text|
+  refresh_tries = 5
+  wait_time = 1
+
+  kaikifs.select_frame("routeLogIFrame")
+  begin
+    wait = Selenium::WebDriver::Wait.new(:timeout => 4).
+      until { kaikifs.find_element(:xpath, "//div[@id='workarea']") }
+    if kaikifs.is_text_present(text)
+      kaikifs.is_text_present(text).should == true
+    end
+  rescue Selenium::WebDriver::Error::TimeOutError => command_error
+    puts "#{refresh_tries} retries left... #{Time.now}"
+    refresh_tries -= 1
+    if refresh_tries == 0
+      kaikifs.is_text_present(text).should == true
+    end
+    kaikifs.pause wait_time
+
+    kaikifs.click_and_wait :alt, "refresh"  # 'refresh'
+    retry
+  ensure
+    kaikifs.switch_to.default_content
+    kaikifs.pause(1)
+    kaikifs.select_frame("iframeportlet")
+  end
+end
+
 Then /^I should see "([^"]*)" in "([^"]*)"$/ do |text, el|
   kaikifs.select_frame("iframeportlet")
   puts kaikifs.wait_for_text(text, :element => el, :timeout_in_seconds => 30);
