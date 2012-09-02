@@ -59,22 +59,6 @@ When /^I set the "([^"]*)" to "([^"]*)" if blank$/ do |field, value|
   end
 end
 
-#When /^I set the "([^"]*)" to "([^"]*)" and wait$/ do |field, value|
-#  kaikifs.set_approximate_field(
-#    [
-#      "//div[contains(text(), '#{field}:')]/../following-sibling::*/input[1] | //div[contains(text(), '#{field}:')]/../following-sibling::*/select[1]",
-#      # The following are for horrible places in KFS where the text in a th might not be the first text() node.
-#      "//th[contains(text(), '#{field}')]",     # INCOMPLETE
-#      "//th[contains(text()[1], '#{field}')]",  # INCOMPLETE
-#      "//th[contains(text()[2], '#{field}')]/../following-sibling::*//*[contains(@title, '#{field}')]", # Group > create new > Chart Code
-#      "//th[contains(text()[3], '#{field}')]",  # INCOMPLETE
-#      # The following appear on lookups like the Person Lookup. Like Group > create new > Assignee Lookup (find a shorter path to Person Lookup)
-#      "//th/label[contains(text(), '#{field}')]/../following-sibling::td/input[1]"
-#    ],
-#    value)
-#  kaikifs.wait_for_page_to_load
-#end
-
 # WD
 When /^I set the "([^"]*)" to something like "([^"]*)"$/ do |field, value|
   value = value + ' ' + Time.now.strftime("%Y%m%d%H%M%S")
@@ -192,10 +176,6 @@ When /^I set a new ([^']*)'s "([^"]*)" to "([^"]*)"$/ do |tab, field, value|
       ['', '[1]', '[2]', '[3]']
     ),
     value)
-end
-
-When /^I set the new "([^"]*)" to something like "([^"]*)"$/ do |field, value|
-  kaikifs.set_field("document.newMaintainableObject."+field, "#{value} #{Time.now.to_i}")
 end
 
 When /^I set the "([^"]*)" to the given document number$/ do |field|
@@ -327,6 +307,7 @@ When /^I fill out a new (?:Vendor Address|vendorAddress) with default values$/ d
   kaikifs.set_field(prefix+'vendorDefaultAddressIndicator', 'Yes')
 end
 
+# WD
 When /^I fill out a new Item with default values$/ do
   prefix = "newPurchasingItemLine."
   kaikifs.set_field(prefix+'itemTypeCode', 'QUANTITY TAXABLE')
@@ -336,6 +317,7 @@ When /^I fill out a new Item with default values$/ do
   kaikifs.set_field(prefix+'itemUnitPrice', '3.14')
 end
 
+# WD
 When /^I fill out a new (?:Vendor Address|vendorAddress) with the following:$/ do |table|
   fields = table.rows_hash
   prefix = "document.newMaintainableObject.add.vendorAddresses."
