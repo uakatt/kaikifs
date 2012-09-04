@@ -79,7 +79,7 @@ task :vet_feature, :name do |t, args|
     t.cucumber_opts = "--format pretty #{feature} -s -r features"
   end
 
-  5.times do
+  10.times do
     Rake::Task["cuke_feature"].reenable
     Rake::Task["cuke_feature"].invoke
   end
