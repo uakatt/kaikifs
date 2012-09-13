@@ -235,11 +235,9 @@ class KaikiFS::WebDriver::Base
   end
 
   # Temporarily redirects all stdout to `@stderr_log`
+  # I've effectively no-op'ed this.
   def dont_stdout!
-    orig_stdout = $stdout
-    $stdout = File.open(@stderr_log, 'a')
     yield if block_given?
-    $stdout = orig_stdout  # restore stdout
   end
 
   # Enlargens the text of an element, using `method` and `locator`, by changing the `font-size`

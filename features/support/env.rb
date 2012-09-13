@@ -30,7 +30,7 @@ class KaikiFSWorld
 
   firefox_profile = ENV['KAIKI_FIREFOX_PROFILE']
   firefox_path    = ENV['KAIKI_FIREFOX_PATH']
-  @@kaikifs = KaikiFS::WebDriver::KFS.new(username, password, :envs => env, :is_headless => is_headless, :firefox_profile => firefox_profile, :firefox_path => firefox_path)
+  @@kaikifs = KaikiFS::CapybaraDriver::KFS.new(username, password, :envs => env, :is_headless => is_headless, :firefox_profile => firefox_profile, :firefox_path => firefox_path)
   @@kaikifs.mk_screenshot_dir(File.join(Dir::pwd, 'features', 'screenshots'))
   @@kaikifs.start_session
   @@kaikifs.maximize_ish
@@ -40,7 +40,10 @@ class KaikiFSWorld
   @@kaikifs.record[:document_numbers] = ENV['KAIKI_DOC_NUMBERS'].split(',')  if ENV['KAIKI_DOC_NUMBERS']
 
   at_exit do
-    @@kaikifs.quit
+    # This quit has been commented out, because Capybara does it itself, in an at_exit:
+    # /home/sam/.rvm/gems/ruby-1.9.3-p125/gems/capybara-1.1.2/lib/capybara/selenium/driver.rb:21
+    # This is an open bug, unrelated to [#763](https://github.com/jnicklas/capybara/issues/763).
+    #@@kaikifs.quit
     @@kaikifs.headless.destroy if is_headless
   end
 
