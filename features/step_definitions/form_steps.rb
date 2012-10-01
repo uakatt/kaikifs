@@ -228,7 +228,7 @@ When /^I (check|uncheck) the "([^"]*)" for the new "([^"]*)"$/ do |check, field,
         else                              "tab-#{child.pluralize}-div"
         end
   xpath = "//*[@id='#{div}']//th/label[contains(text(), '#{field}') and contains(@id, '.newMaintainableObject.')]/../following-sibling::td/input[1]"
-  kaikifs.send(check.to_sym, :xpath, xpath)
+  kaikifs.send((check+'_by_xpath').to_sym, xpath)
 end
 
 # WD

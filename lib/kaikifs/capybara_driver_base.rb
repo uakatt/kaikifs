@@ -60,9 +60,36 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
     @log.level = DEBUG
   end
 
+  # Switch to the default tab/window/frame, and backdoor login as `user`
+  def backdoor_as(user)
+    switch_to.default_content
+    retries = 2
+    begin
+      @log.debug "    backdoor_as: Waiting up to #{DEFAULT_TIMEOUT} seconds to find(:name, 'backdoorId')..."
+      find(:name, 'backdoorId').set(user)
+
+    rescue Selenium::WebDriver::Error::TimeOutError => error
+      raise error if retries == 0
+      @log.debug "    backdoor_as: Page is likely boned. Navigating back home..."
+      visit base_path
+      retries -= 1
+      retry
+    end
+    click_button 'login'
+    find_link 'Main Menu'
+  end
+
   def base_path
     uri = URI.parse url
     uri.path
+  end
+
+  def check_by_xpath(xpath)
+    find(:xpath, xpath).set(true)
+  end
+
+  def uncheck_by_xpath(xpath)
+    find(:xpath, xpath).set(false)
   end
 
   def host
@@ -146,7 +173,7 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
     end
     Capybara.current_driver = :selenium
 
-    visit(base_path)
+    visit base_path
 
     @driver = page.driver.browser
   end

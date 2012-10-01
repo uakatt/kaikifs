@@ -153,8 +153,8 @@ class KaikiFS::WebDriver::Base
     timeout = DEFAULT_TIMEOUT
     selectors.each do |selector|
       begin
-        return check(:xpath, selector, {:timeout => timeout})
-      rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError
+        return check_by_xpath(selector)
+      rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError, Capybara::ElementNotFound
         timeout = 0.5
         # Try the next selector
       end
@@ -170,33 +170,14 @@ class KaikiFS::WebDriver::Base
   def uncheck_approximate_field(selectors)
     selectors.each do |selector|
       begin
-        return uncheck(:xpath, selector)
-      rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError
+        return uncheck_by_xpath(selector)
+      rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError, Capybara::ElementNotFound
         # Try the next selector
       end
     end
 
     @log.error "Failed to uncheck approximate field. Selectors are:\n#{selectors.join("\n") }"
     raise Selenium::WebDriver::Error::NoSuchElementError
-  end
-
-  def check(method, locator, options={})
-    timeout = options[:timeout] || DEFAULT_TIMEOUT
-    @log.debug "    check: Waiting up to #{timeout} seconds to find_element(#{method}, #{locator})..."
-    wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
-    wait.until { driver.find_element(method, locator) }
-    element = driver.find_element(method, locator)
-    element.click unless element.selected?
-    pause
-  end
-
-  def uncheck(method, locator)
-    @log.debug "    uncheck: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(#{method}, #{locator})..."
-    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
-    wait.until { driver.find_element(method, locator) }
-    element = driver.find_element(method, locator)
-    element.click if element.selected?
-    pause
   end
 
   def click_and_wait(method, locator, options = {})
@@ -500,17 +481,6 @@ class KaikiFS::WebDriver::Base
       wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
       wait.until { driver.find_element(:xpath, locator) }
       select = Selenium::WebDriver::Support::Select.new(@driver.find_element(:xpath, locator))
-      #select.click
-      #pause
-
-      #option = select.find_elements( :tag_name => 'option' ).find do |option|
-      #    option.text == value
-      #end
-      #if option.nil?
-      #  puts "Error: Could not find an <option> with text: '#{value}'"
-      #  raise Selenium::WebDriver::Error::NoSuchElementError
-      #end
-      #option.click
       safe_deselect_all(select)
       select.select_by(:text, value)
     when 'radio'
@@ -548,15 +518,13 @@ class KaikiFS::WebDriver::Base
     end
 
     @driver = Selenium::WebDriver.for :firefox, :profile => @profile
-    #@driver.manage.timeouts.implicit_wait = 3
     @driver.navigate.to (@envs[@env]['url'] || "https://kf-#{@env}.mosaic.arizona.edu/kfs-#{@env}")
   end
 
   # Create and execute a `Selenium::WebDriver::Wait` for finding an element by `method` and `selector`
   def wait_for(method, locator)
     @log.debug "    wait_for: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(#{method}, #{locator})..."
-    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
     sleep 0.1  # based on http://groups.google.com/group/ruby-capybara/browse_thread/thread/5e182835a8293def fixes "NS_ERROR_ILLEGAL_VALUE"
-    wait.until { driver.find_element(method, locator) }
+    find(method, locator)
   end
 end
