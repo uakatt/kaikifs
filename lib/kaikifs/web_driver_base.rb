@@ -146,49 +146,15 @@ class KaikiFS::WebDriver::Base
     @driver.find_element(*main_menu_link)
   end
 
-  # Check the field that is expressed with `selectors` (the first one that is found).
-  # `selectors` is typically an Array returned by `ApproximationsFactory`, but it could be
-  # hand-generated.
-  def check_approximate_field(selectors)
-    timeout = DEFAULT_TIMEOUT
-    selectors.each do |selector|
-      begin
-        return check_by_xpath(selector)
-      rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError, Capybara::ElementNotFound
-        timeout = 0.5
-        # Try the next selector
-      end
-    end
-
-    @log.error "Failed to check approximate field. Selectors are:\n#{selectors.join("\n") }"
-    raise Selenium::WebDriver::Error::NoSuchElementError
-  end
-
-  # Uncheck the field that is expressed with `selectors` (the first one that is found).
-  # `selectors` is typically an Array returned by `ApproximationsFactory`, but it could be
-  # hand-generated.
-  def uncheck_approximate_field(selectors)
-    selectors.each do |selector|
-      begin
-        return uncheck_by_xpath(selector)
-      rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError, Capybara::ElementNotFound
-        # Try the next selector
-      end
-    end
-
-    @log.error "Failed to uncheck approximate field. Selectors are:\n#{selectors.join("\n") }"
-    raise Selenium::WebDriver::Error::NoSuchElementError
-  end
-
   def click_and_wait(method, locator, options = {})
     @log.debug "  Start click_and_wait(#{method.inspect}, #{locator.inspect}, #{options.inspect})"
     timeout = options[:timeout] || DEFAULT_TIMEOUT
     @log.debug "    click_and_wait: Waiting up to #{timeout} seconds to find_element(#{method}, #{locator})..."
     wait = Selenium::WebDriver::Wait.new(:timeout => timeout)
     wait.until { driver.find_element(method, locator) }
-    dont_stdout! do
+    #dont_stdout! do
       @driver.find_element(method, locator).click
-    end
+    #end
     pause
   end
 
@@ -217,9 +183,9 @@ class KaikiFS::WebDriver::Base
 
   # Temporarily redirects all stdout to `@stderr_log`
   # I've effectively no-op'ed this.
-  def dont_stdout!
-    yield if block_given?
-  end
+  #def dont_stdout!
+  #  yield if block_given?
+  #end
 
   # Enlargens the text of an element, using `method` and `locator`, by changing the `font-size`
   # in the style to be `3em`. It uses the following Javascript:
@@ -258,16 +224,16 @@ class KaikiFS::WebDriver::Base
     end
   end
 
-  def is_text_present(text, xpath='//*')
-    begin
-      @driver.find_element(:xpath, "#{xpath}[contains(text(),'"+text+"')]")
-      true
-    rescue Selenium::WebDriver::Error::NoSuchElementError
-      @log.error "Could not find: @driver.find_element(:xpath, \"#{xpath}[contains(text(),'"+text+"')]\")"
-      @log.error @driver.find_element(:xpath, xpath).inspect
-      false
-    end
-  end
+#  def is_text_present(text, xpath='//*')
+#    begin
+#      @driver.find_element(:xpath, "#{xpath}[contains(text(),'"+text+"')]")
+#      true
+#    rescue Selenium::WebDriver::Error::NoSuchElementError
+#      @log.error "Could not find: @driver.find_element(:xpath, \"#{xpath}[contains(text(),'"+text+"')]\")"
+#      @log.error @driver.find_element(:xpath, xpath).inspect
+#      false
+#    end
+#  end
 
   # "Maximize" the current window using Selenium's `manage.window.resize_to`. This script
   # does not use the window manager's "maximize" capability, but rather resizes the window.
@@ -441,13 +407,13 @@ class KaikiFS::WebDriver::Base
       locator = id
     elsif id =~ /^\/\// or id =~ /^id\(".+"\)/
       node_name = nil
-      dont_stdout! do
+      #dont_stdout! do
         begin
           node = @driver.find_element(:xpath, id)
           node_name = node.tag_name.downcase
         rescue Selenium::WebDriver::Error::NoSuchElementError
         end
-      end
+      #end
       locator = id
     elsif id =~ /^.+=.+ .+=.+$/
       node_name = 'radio'

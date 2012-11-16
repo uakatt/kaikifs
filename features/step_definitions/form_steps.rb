@@ -390,8 +390,10 @@ When /^I fill out the ([0-9a-z]+) Item's "([^"]*)" with the following new Source
     end
 
     # NEED SOME STUFF TO DOUBLE CHECK THAT ITS ALL FILLED OUT.
-    break unless (kaikifs.is_text_present("account not found") or  # Chart 'AZ' was selected
-                  kaikifs.is_text_present("chart code is empty"))  # No Chart was selected
+    #break unless (kaikifs.is_text_present("account not found") or  # Chart 'AZ' was selected
+    #              kaikifs.is_text_present("chart code is empty"))  # No Chart was selected
+    break unless (kaikifs.has_content? "account not found" or  # Chart 'AZ' was selected
+                  kaikifs.has_content? "chart code is empty")  # No Chart was selected
     retries -= 1
     if retries < 0
       kaikifs.log.error "The #{ordinal} item's new Source Lines didn't fill out so well. No more retries."

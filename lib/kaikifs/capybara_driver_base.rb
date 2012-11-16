@@ -84,14 +84,51 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
     uri.path
   end
 
+  # Check the field that is expressed with `selectors` (the first one that is found).
+  # `selectors` is typically an Array returned by `ApproximationsFactory`, but it could be
+  # hand-generated.
+  def check_approximate_field(selectors)
+    timeout = DEFAULT_TIMEOUT
+    selectors.each do |selector|
+      begin
+        return check_by_xpath(selector)
+      rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError, Capybara::ElementNotFound
+        timeout = 0.5
+        # Try the next selector
+      end
+    end
+
+    @log.error "Failed to check approximate field. Selectors are:\n#{selectors.join("\n") }"
+    raise Selenium::WebDriver::Error::NoSuchElementError
+  end
+
+  # Uncheck the field that is expressed with `selectors` (the first one that is found).
+  # `selectors` is typically an Array returned by `ApproximationsFactory`, but it could be
+  # hand-generated.
+  def uncheck_approximate_field(selectors)
+    selectors.each do |selector|
+      begin
+        return uncheck_by_xpath(selector)
+      rescue Selenium::WebDriver::Error::NoSuchElementError, Selenium::WebDriver::Error::TimeOutError, Capybara::ElementNotFound
+        # Try the next selector
+      end
+    end
+
+    @log.error "Failed to uncheck approximate field. Selectors are:\n#{selectors.join("\n") }"
+    raise Selenium::WebDriver::Error::NoSuchElementError
+  end
+
+  # Check a field, selecting by xpath
   def check_by_xpath(xpath)
     find(:xpath, xpath).set(true)
   end
 
+  # Uncheck a field, selecting by xpath
   def uncheck_by_xpath(xpath)
     find(:xpath, xpath).set(false)
   end
 
+  # 'host' attribute of {#url}
   def host
     uri = URI.parse url
     "#{uri.scheme}://#{uri.host}"
@@ -166,6 +203,7 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
     # Setup some basic Capybara settings
     Capybara.run_server = false
     Capybara.app_host = host
+    Capybara.default_wait_time = 5
 
     # Register the Firefox driver that is going to use this profile
     Capybara.register_driver :selenium do |app|
@@ -180,5 +218,33 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
 
   def url
     @envs[@env]['url'] || "https://kf-#{@env}.mosaic.arizona.edu/kfs-#{@env}"
+  end
+
+  def config(key)
+    key_iv = ('@'+key.to_s).to_sym
+
+    if instance_variable_defined? key_iv
+      return instance_variable_get key_iv
+    end
+
+    config_file = File.join(File.dirname(__FILE__), '..', '..', 'config', key.to_s + '.yaml')
+    config_hash = YAML.load(File.read(config_file))
+    instance_variable_set key_iv, config_hash
+    return instance_variable_get key_iv
+  end
+
+  def user_by_title(title, account=nil)
+    if account.nil?
+      account = config(:accounts).values.first
+    else
+      account = config(:accounts)[account]
+    end
+
+    account[title.downcase.gsub(/ +/, '_')] || user_by_team(title)
+  end
+
+  def user_by_team(team)
+    puts config(:arizona_teams)[team.downcase.gsub(/ +/, '_')]['user']
+    config(:arizona_teams)[team.downcase.gsub(/ +/, '_')]['user']
   end
 end

@@ -44,7 +44,7 @@ Feature: KFSI-5460
 
     When I record this document number
     When I record this "Requisition #"
-    And I backdoor as "csmith11"
+    And I backdoor as the fiscal officer
     And I open my Action List to the last page
     And I open that document
     And I click "approve"
@@ -154,7 +154,7 @@ Feature: KFSI-5460
 
     When I record this document number
     When I record this "Requisition #"
-    And I backdoor as "csmith11"
+    And I backdoor as the fiscal officer
     And I open my Action List to the last page
     And I open that document
     And I click "approve"

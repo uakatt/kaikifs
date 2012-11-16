@@ -73,7 +73,7 @@ Feature: KFSI-5783
 
     When I record this document number
     When I record this "Requisition #"
-    And I backdoor as "csmith11"
+    And I backdoor as the fiscal officer
     And I open my Action List, refreshing until that document appears
     #And I open my Action List to the last page
     And I pause
@@ -81,7 +81,7 @@ Feature: KFSI-5783
     And I click "approve"
     Then I should see my Action List
 
-    When I backdoor as "kfs-test-sec22"
+    When I backdoor as the UA FSO FM Team 451
     And I open my Action List, refreshing until that document appears
     #And I open my Action List to the last page
     And I pause
@@ -89,7 +89,7 @@ Feature: KFSI-5783
     And I click "approve"
     Then I should see my Action List
 
-    When I backdoor as "kfs-test-sec40"
+    When I backdoor as the contract manager
     And I am on the "main_menu" tab
     And I pause
     And I click the "Contract Manager Assignment" portal link
