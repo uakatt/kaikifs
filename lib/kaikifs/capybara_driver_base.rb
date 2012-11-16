@@ -244,7 +244,6 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
   end
 
   def user_by_team(team)
-    puts config(:arizona_teams)[team.downcase.gsub(/ +/, '_')]['user']
     config(:arizona_teams)[team.downcase.gsub(/ +/, '_')]['user']
   end
 end
