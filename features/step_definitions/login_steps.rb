@@ -14,3 +14,8 @@ end
 Given /^I (?:am logged in|log in)$/ do
   kaikifs.backdoor_as kaikifs.username
 end
+
+# WD
+Given /^I (?:am logged in|log in) as "([^"]*)"$/ do |user|
+  kaikifs.login_as user
+end

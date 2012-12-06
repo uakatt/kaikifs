@@ -6,22 +6,24 @@ require 'active_support/inflector'
 require 'yaml'
 
 class KaikiFSWorld
-  SHARED_PASSWORDS_FILE = "shared_passwords.yaml"
   username   = ENV['KAIKI_NETID']
   password   = ENV['KAIKI_PASSWORD']
   env        = ENV['KAIKI_ENV']
   env.split(',') if env
-  if File.exist? SHARED_PASSWORDS_FILE
-    shared_passwords = File.open(SHARED_PASSWORDS_FILE) { |h| YAML::load_file(h) }
-    #puts shared_passwords
-    if password.nil? and username and shared_passwords.keys.any? { |user| username[user] }
-      user_group = shared_passwords.keys.select { |user| username[user] }[0]
-      password = shared_passwords[user_group]
-    end
+  #if File.exist? SHARED_PASSWORDS_FILE
+  #  shared_passwords = File.open(SHARED_PASSWORDS_FILE) { |h| YAML::load_file(h) }
+  #  #puts shared_passwords
+  #  if password.nil? and username and shared_passwords.keys.any? { |user| username[user] }
+  #    user_group = shared_passwords.keys.select { |user| username[user] }[0]
+  #    password = shared_passwords[user_group]
+  #  end
+  #end
+  if password.nil? && username
+    password = KaikiFS::CapybaraDriver::Base.shared_password_for username  if password.nil? && username
   end
-  username ||= ask("NetID:  ")    { |q| q.echo = true }
-  password ||= ask("Password:  ") { |q| q.echo = "*" }
-  env ||= [] << ask("Environment/URL:  ") { |q| q.echo = true; q.default='dev' }
+  username ||=       ask("NetID:  ")           { |q| q.echo = true }
+  password ||=       ask("Password:  ")        { |q| q.echo = "*" }
+  env      ||= [] << ask("Environment/URL:  ") { |q| q.echo = true; q.default='dev' }
 
   is_headless = true
   if ENV['KAIKI_IS_HEADLESS']

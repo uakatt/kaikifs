@@ -23,6 +23,9 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
   # The basename of the json file that contains all environment information
   ENVS_FILE = "envs.json"
 
+  # The file that contains shared passwords for test users
+  SHARED_PASSWORDS_FILE = "shared_passwords.yaml"
+
   attr_accessor :driver, :is_headless
 
   def initialize(username, password, options={})
@@ -77,6 +80,20 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
     end
     click_button 'login'
     find_link 'Main Menu'
+  end
+
+  def login_as(user)
+    if @login_method == :backdoor
+      backdoor_as(user)
+    else # log out and log back in as user
+      logout
+      visit base_path
+      login_via_webauth_with user
+    end
+  end
+
+  def logout
+    click_button 'logout'
   end
 
   def base_path
@@ -245,5 +262,17 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
 
   def user_by_team(team)
     config(:arizona_teams)[team.downcase.gsub(/ +/, '_')]['user']
+  end
+
+  def self.shared_password_for(username)
+    return nil if not File.exist? SHARED_PASSWORDS_FILE
+
+    shared_passwords = File.open(SHARED_PASSWORDS_FILE) { |h| YAML::load_file(h) }
+    #puts shared_passwords
+    if shared_passwords.keys.any? { |user| username[user] }
+      user_group = shared_passwords.keys.select { |user| username[user] }[0]
+      return shared_passwords[user_group]
+    end
+    nil
   end
 end

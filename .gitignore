@@ -11,3 +11,4 @@ features/videos/*.mpg
 kaiki_gojira
 shared_passwords.yaml
 .yardoc
+config

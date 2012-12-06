@@ -6,7 +6,7 @@ Feature: KFSI-5490
   @jira
   Scenario: Vendor creation can be cancelled
 
-    Given I am backdoored as "kfs-test-sec32"
+    Given I am logged in as "kfs-test-sec32"
     And I am on the "main_menu" tab
     When I click the "Vendor" portal link
     And I click "create new"

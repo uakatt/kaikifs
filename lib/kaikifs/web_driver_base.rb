@@ -307,11 +307,17 @@ class KaikiFS::WebDriver::Base
     @driver.save_screenshot(File.join(@screenshot_dir, "#{name}.png"))
   end
 
+  # Assume the browser is looking at Kuali, and can click the main_menu_link, in order to trigger a redirect to WebAuth. Then login via WebAuth.
   def login_via_webauth
+    login_via_webauth_with @username, @password
+  end
+
+  def login_via_webauth_with(username, password=nil)
+    password ||= self.class.shared_password_for username
     @driver.find_element(*main_menu_link).click
     sleep 1
-    @driver.find_element(:id, 'username').send_keys(@username)
-    @driver.find_element(:id, 'password').send_keys(@password)
+    @driver.find_element(:id, 'username').send_keys(username)
+    @driver.find_element(:id, 'password').send_keys(password)
     @driver.find_element(:css, '#fm1 .btn-submit').click
     sleep 1
 
@@ -322,6 +328,15 @@ class KaikiFS::WebDriver::Base
         raise WebauthAuthenticationError.new
       elsif is_text_present("status") == "Password is a required field."
         raise WebauthAuthenticationError.new
+      end
+    rescue Selenium::WebDriver::Error::NoSuchElementError
+      # keep going
+    end
+
+    begin
+      expiring_password_link = @driver.find_element(:link_text, "Go there now")
+      if expiring_password_link
+        expiring_password_link.click
       end
     rescue Selenium::WebDriver::Error::NoSuchElementError
       return
