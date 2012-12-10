@@ -155,9 +155,10 @@ When /^I (?:return(?: with)?|open) the "([^"]*)" (?:result|one)$/ do |key|
   kaikifs.click_and_wait(:xpath, "//a[contains(text(), '#{key}')]/ancestor::tr/td[1]/a")
 end
 
-#When /^I edit the "([^"]*)" one$/ do |key|
-#  kaikifs.click_and_wait("xpath=//a[contains(text(), '#{key}')]/ancestor::tr/td[1]/a[contains(@title,'edit')]")
-#end
+# WD
+When /^I edit the "([^"]*)" one$/ do |key|
+  kaikifs.click_and_wait(:xpath, "//a[contains(text(), '#{key}')]/ancestor::tr/td[1]/a[contains(@title,'edit')]")
+end
 
 # WD
 When /^I edit the first one$/ do
