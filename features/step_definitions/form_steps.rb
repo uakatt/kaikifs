@@ -296,18 +296,6 @@ When /^I add that Default Address and wait/i do
 end
 
 # WD
-When /^I fill out a new (?:Vendor Address|vendorAddress) with default values$/ do
-  prefix = "document.newMaintainableObject.add.vendorAddresses."
-  kaikifs.set_field(prefix+'vendorAddressTypeCode', 'PURCHASE ORDER')
-  kaikifs.set_field(prefix+'vendorLine1Address', '123 main St.')
-  kaikifs.set_field(prefix+'vendorCityName', 'Tucson')
-  kaikifs.set_field(prefix+'vendorStateCode', 'AZ')
-  kaikifs.set_field(prefix+'vendorZipCode', '85719')
-  kaikifs.set_field(prefix+'vendorCountryCode', 'UNITED STATES')
-  kaikifs.set_field(prefix+'vendorDefaultAddressIndicator', 'Yes')
-end
-
-# WD
 When /^I fill out a new Item with default values$/ do
   prefix = "newPurchasingItemLine."
   kaikifs.set_field(prefix+'itemTypeCode', 'QUANTITY TAXABLE')
@@ -315,15 +303,6 @@ When /^I fill out a new Item with default values$/ do
   kaikifs.set_field(prefix+'itemUnitOfMeasureCode', 'BDL')  # Bundle
   kaikifs.set_field(prefix+'itemDescription', 'Surprises')
   kaikifs.set_field(prefix+'itemUnitPrice', '3.14')
-end
-
-# WD
-When /^I fill out a new (?:Vendor Address|vendorAddress) with the following:$/ do |table|
-  fields = table.rows_hash
-  prefix = "document.newMaintainableObject.add.vendorAddresses."
-  fields.each do |key, value|
-    kaikifs.set_field(prefix+key, value)
-  end
 end
 
 # WD

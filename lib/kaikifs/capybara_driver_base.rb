@@ -93,6 +93,7 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
   end
 
   def logout
+    switch_to.default_content
     click_button 'logout'
   end
 
