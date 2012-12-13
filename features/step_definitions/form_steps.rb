@@ -148,12 +148,13 @@ end
 
 # WD
 When /^I set a new ([^']*)'s "([^"]*)" to "([^"]*)"$/ do |tab, field, value|
-  object =
-    case tab
-    when 'Address' then 'Address'
-    else                tab.pluralize  # Assignee  -->  Assignees
-    end
-  div = "tab-#{object}-div"
+  #object =
+  #  case tab
+  #  when 'Address' then 'Address'
+  #  else                tab.pluralize  # Assignee  -->  Assignees
+  #  end
+  #div = "tab-#{object}-div"
+  div = tab_id_for(tab)
   row =
     case tab
     when 'Item' then 'tr[2]'  # Specifically for a Requisition...
@@ -237,12 +238,7 @@ When /^I add that "([^"]*)"$/ do |child|
   when child =~ /Vendor Address|vendorAddress/  # A new vendor fieldset has no id.
     kaikifs.click_and_wait :id, 'methodToCall.addLine.vendorAddresses.(!!org.kuali.kfs.vnd.businessobject.VendorAddress!!)'
   else
-    div =
-      case
-      when child == 'Search Alias'       then 'tab-SearchAlias-div'
-      when child == 'Supplier Diversity' then 'tab-SupplierDiversity-div'
-      else                                    "tab-#{child.pluralize}-div"
-      end
+    div = tab_id_for(child)
 
     # click the (only) add button in the right tab. Example: Group > create new > Assignees
     # hard-coding add1.gif until we need another image. I don't just want to rely on 'add' yet...
@@ -425,4 +421,19 @@ Transform /#\{\d+i\}/ do |v|
     d = $1.to_i-1
     (rand*(9*10**d) + 10**d).to_i
   end
+end
+
+def tab_id_for(tab_name)
+  singlulars = [
+    # Vendor -> create new
+    'Address',                     'Contact',              'Supplier Diversity',
+    'Shipping Special Conditions', 'Search Alias',         'Vendor Phone Number',
+    'Customer Number',             'Additional Attributes'
+               ]
+  object =
+    case
+    when singlulars.include?(tab_name) then tab_name.gsub(' ', '')
+    else                                    tab_name.pluralize  # Assignee  -->  Assignees
+    end
+  return "tab-#{object}-div"
 end

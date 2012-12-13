@@ -60,14 +60,25 @@ Feature: Vendor Maintenance
     And I add that "Vendor Address"
     And I set the first Vendor Address as the campus default for "MC - Main Campus"
     And I add that Default Address and wait
+
     And I show the "Contact" tab
-    And I fill out a new Contact with default values
+    And I fill out a new Vendor Contact with default values, and the following:
+      | Attention        | Not Sammy  |
+      | Comments         | Overridden |
+    And I add that "Contact"
+
     And I show the "Supplier Diversity" tab
     And I set the new "Supplier Diversity" to "AZ SMALL BUSINESS"
     And I add that "Supplier Diversity"
+
+    And I show the "Shipping Special Conditions" tab
+    And I fill out a new Vendor Shipping Special Conditions with default values
+    And I add that "Shipping Special Conditions"
+
     And I set the new "Arizona Sales Tax License Number" to "123456789AB"
     And I click "submit"
     And I click "yes"
+
     Then I should see "Document was successfully submitted."
     And I should see "ID:" in the "routeLog" iframe
     And  I should see "Actions Taken" in the "routeLog" iframe
