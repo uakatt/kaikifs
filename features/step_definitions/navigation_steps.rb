@@ -108,7 +108,7 @@ When /^I click "([^"]*)" with reason "([^"]*)"$/ do |link, reason|
     kaikifs.click_and_wait :xpath, "//input[@title='#{link}']"
   end
   kaikifs.set_field("//*[@name='reason']", reason)
-  sleep 30
+  sleep 5
   kaikifs.click_and_wait :name, 'methodToCall.processAnswer.button0'  # The 'yes' button
 end
 

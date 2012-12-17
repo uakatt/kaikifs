@@ -5,6 +5,8 @@ require 'highline/import'
 require 'active_support/inflector'
 require 'yaml'
 
+STDOUT.sync = true
+
 class KaikiFSWorld
   username   = ENV['KAIKI_NETID']
   password   = ENV['KAIKI_PASSWORD']
@@ -58,12 +60,21 @@ end
 
 After do |scenario|
   if scenario.failed?
-    kaikifs.screenshot(scenario.file_colon_line.file_safe + '_' + Time.now.strftime("%Y%m%d%H%M%S"))
+    screenshot_file = scenario.file_colon_line.file_safe + '_' + Time.now.strftime("%Y%m%d%H%M%S")
+    kaikifs.screenshot(screenshot_file)
+  end
+
+  if ENV['KAIKI_REPORT_RECORD'] =~ /1|true|yes/i
+    STDOUT.puts "      Recorded Values:"
+    kaikifs.record.each do |k,v|
+      STDOUT.puts "        #{k.to_s.titleize}: #{v}"
+    end
   end
 end
 
 Before do
   kaikifs.headless.video.start_capture if kaikifs.is_headless
+  kaikifs.puts_method = method(:puts)
 end
 
 After do |scenario|

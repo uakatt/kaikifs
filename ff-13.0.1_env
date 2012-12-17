@@ -2,6 +2,7 @@ export KAIKI_NETID=kfs-test-sec1
 export KAIKI_ENV=dev
 export KAIKI_FIREFOX_PROFILE=ff-13.0.1
 export KAIKI_FIREFOX_PATH=/home/sam/code/firefox/firefox-13.0.1/firefox
+export KAIKI_REPORT_RECORD=true
 
 # WARNING: feature totally exits, for use with asciiio.py
 feature () {

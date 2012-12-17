@@ -26,7 +26,7 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
   # The file that contains shared passwords for test users
   SHARED_PASSWORDS_FILE = "shared_passwords.yaml"
 
-  attr_accessor :driver, :is_headless
+  attr_accessor :driver, :is_headless, :puts_method
 
   def initialize(username, password, options={})
     @username = username
@@ -188,6 +188,10 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
     @screenshot_dir = File.join(base, Time.now.strftime("%Y-%m-%d.%H"))
     return if Dir::exists? @screenshot_dir
     Dir::mkdir(@screenshot_dir)
+  end
+
+  def puts(*args)
+    @puts_method.call(*args)
   end
 
   # Start a browser session by choosing a Firefox profile, setting the Capybara

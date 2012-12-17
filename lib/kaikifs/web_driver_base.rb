@@ -304,6 +304,7 @@ class KaikiFS::WebDriver::Base
 
   # Take a screenshot, and save it to `@screenshot_dir` by the name `#{name}.png`
   def screenshot(name)
+    puts "Screenshot saved to " + File.join(@screenshot_dir, "#{name}.png")
     @driver.save_screenshot(File.join(@screenshot_dir, "#{name}.png"))
   end
 

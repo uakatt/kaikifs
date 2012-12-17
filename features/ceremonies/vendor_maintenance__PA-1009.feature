@@ -3,7 +3,6 @@ Feature: Vendor Maintenance
   Background:
     Given I am up top
 
-  @funky_test
   Scenario: PA-1009-01-04-CreateForeignVendor
 
     Given I am logged in as "kfs-test-sec32"
@@ -34,13 +33,12 @@ Feature: Vendor Maintenance
     And I should see "ID:" in the "routeLog" iframe
     And  I should see "Actions Taken" in the "routeLog" iframe
     When I record this document number
-    #And I log in as "kfs-test-sec50"
-    And I log in as the UA PACS Vendor Managers
+    And I save a screenshot as "Vendor Doc"
+    And I log in as "kfs-test-sec50"
     And I open my Action List, refreshing until that document appears
     And I open that document
-    And I click "disapprove" with reason "Don't leave a doc hanging."
+    And I click "approve"
 
-  @funky_test
   Scenario: PA-1009-01-04-CreateForeignVendor, more exciting fields
 
     Given I am logged in as "kfs-test-sec32"
@@ -84,7 +82,9 @@ Feature: Vendor Maintenance
     And I should see "ID:" in the "routeLog" iframe
     And  I should see "Actions Taken" in the "routeLog" iframe
     When I record this document number
-    And I log in as the UA PACS Vendor Managers
+    And I save a screenshot as "Vendor Doc"
+    And I log in as "kfs-test-sec50"
     And I open my Action List, refreshing until that document appears
     And I open that document
-    And I click "disapprove" with reason "Don't leave a doc hanging."
+    And I click "approve"
+    And I click "yes"

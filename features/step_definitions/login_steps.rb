@@ -19,3 +19,10 @@ end
 Given /^I (?:am logged in|log in) as "([^"]*)"$/ do |user|
   kaikifs.login_as user
 end
+
+# WD
+Given /^I (?:am logged in|log in) as the (.*)$/ do |title|
+  user = kaikifs.user_by_title(title)
+  puts "The #{title} is #{user}"
+  kaikifs.login_as user
+end

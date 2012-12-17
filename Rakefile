@@ -43,7 +43,7 @@ end
 
 task :feature, :name do |t, args|
   set_env_defaults
-  feature = `find features ! -path "*/example_syntax/*" -name "*#{args[:name]}*.feature"`
+  feature = `find features ! -path "*/example_syntax/*" ! -path "*/ceremonies/*" -name "*#{args[:name]}*.feature"`
   break if feature.empty?
   feature = feature.split(/\n/).first
 
@@ -57,7 +57,22 @@ end
 
 task :scenario, :name, :line do |t, args|
   set_env_defaults
-  feature = `find features ! -path "*/example_syntax/*" -name "*#{args[:name]}*.feature"`
+  feature = `find features ! -path "*/example_syntax/*" ! -path "*/ceremonies/*" -name "*#{args[:name]}*.feature"`
+  break if feature.empty?
+  feature = feature.split(/\n/).first
+  line = args[:line]
+
+  Cucumber::Rake::Task.new(:cuke_feature, "Run a single scenario") do |t|
+    t.cucumber_opts = "--format pretty #{feature}:#{line} -s -r features"
+  end
+
+  Rake::Task["cuke_feature"].invoke
+end
+
+# same as scenario, but only looking in ceremonies folder
+task :ceremony, :name, :line do |t, args|
+  set_env_defaults
+  feature = `find features/ceremonies -name "*#{args[:name]}*.feature"`
   break if feature.empty?
   feature = feature.split(/\n/).first
   line = args[:line]

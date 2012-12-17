@@ -62,6 +62,7 @@ end
 # WD
 When /^I set the "([^"]*)" to something like "([^"]*)"$/ do |field, value|
   value = value + ' ' + Time.now.strftime("%Y%m%d%H%M%S")
+  puts value
   kaikifs.set_approximate_field(
     ApproximationsFactory.transpose_build(
       "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/%s",
