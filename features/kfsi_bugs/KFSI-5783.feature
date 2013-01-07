@@ -75,7 +75,6 @@ Feature: KFSI-5783
     When I record this "Requisition #"
     And I backdoor as the fiscal officer
     And I open my Action List, refreshing until that document appears
-    #And I open my Action List to the last page
     And I pause
     And I open that document
     And I click "approve"
@@ -83,13 +82,12 @@ Feature: KFSI-5783
 
     When I backdoor as the UA FSO FM Team 451
     And I open my Action List, refreshing until that document appears
-    #And I open my Action List to the last page
     And I pause
     And I open that document
     And I click "approve"
     Then I should see my Action List
 
-    When I backdoor as the contract manager
+    When I log in as a UA PACS Buyer
     And I am on the "main_menu" tab
     And I pause
     And I click the "Contract Manager Assignment" portal link
