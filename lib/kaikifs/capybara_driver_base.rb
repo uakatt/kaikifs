@@ -255,6 +255,16 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
     return instance_variable_get key_iv
   end
 
+  def user_by_singularized_title(title, account=nil)
+    if account.nil?
+      account = config(:accounts).values.first
+    else
+      account = config(:accounts)[account]
+    end
+
+    account[title.downcase.gsub(/ +/, '_')] || user_by_singularized_team(title)
+  end
+
   def user_by_title(title, account=nil)
     if account.nil?
       account = config(:accounts).values.first
@@ -263,6 +273,17 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
     end
 
     account[title.downcase.gsub(/ +/, '_')] || user_by_team(title)
+  end
+
+  def user_by_singularized_team(team)
+    singularized_teams = config(:arizona_teams).keys.map { |e| [e, e.singularize] }
+    team_key = singularized_teams.select { |p,s| s == team.downcase.gsub(/ /, '_') }
+
+    if team_key.size > 0
+      config(:arizona_teams)[team_key.first.first]['user']
+    else
+      nil
+    end
   end
 
   def user_by_team(team)

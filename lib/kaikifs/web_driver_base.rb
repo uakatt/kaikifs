@@ -304,8 +304,8 @@ class KaikiFS::WebDriver::Base
 
   # Take a screenshot, and save it to `@screenshot_dir` by the name `#{name}.png`
   def screenshot(name)
-    puts "Screenshot saved to " + File.join(@screenshot_dir, "#{name}.png")
     @driver.save_screenshot(File.join(@screenshot_dir, "#{name}.png"))
+    puts "Screenshot saved to " + File.join(@screenshot_dir, "#{name}.png")
   end
 
   # Assume the browser is looking at Kuali, and can click the main_menu_link, in order to trigger a redirect to WebAuth. Then login via WebAuth.
