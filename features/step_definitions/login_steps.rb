@@ -26,3 +26,10 @@ Given /^I (?:am logged in|log in) as the (.*)$/ do |title|
   puts "The #{title} is #{user}"
   kaikifs.login_as user
 end
+
+# WD
+Given /^I (?:am logged in|log in) as a (.*)$/ do |title|
+  user = kaikifs.user_by_singularized_title(title)
+  puts "The #{title} is #{user}"
+  kaikifs.login_as user
+end
