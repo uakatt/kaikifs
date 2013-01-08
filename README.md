@@ -21,16 +21,33 @@ That is all.
 Current Capabilities
 --------------------
 
-* dot
-* dot
-* dot
+* Find a document via doc search (`When I open a doc search`)
+* Find a document via one's action list (`When I open my Action List`)
+* Click a portal link (`When I click the "Vendor" portal link`)
+* Perform a lookup (`When I start a lookup for "Building"`)
+* Return a result (`When I return the first result`)
+* Fill out a field (`When I set the "Vendor Name" to "Micron"`)
+* Fill out a field with a fuzzy, timestamped value (`When I set the "Description" to something like "testing KFSI-1021"`)
+* Verify that a document was successfully submitted (`Then I should see "Document was successfully submitted"`)
+* Verify that the user has returned to a certain page (`Then I should see my Action List`)
+* Verify that some text is on the screen (`Then I should see "AdHoc Requests have been sent`)
+* Verify that some text is in the route log (`Then I should see "Actions Taken" in the route log`)
+* Bulk fill out blocks of fields (`When I fill out a new Vendor Address with default values`)
+* Record Video
+* Automatically screenshot a point of failure
+* Log every click and attempt to find an element
+* Find fields by their "label" (even if it is not a real HTML &lt;label&gt;)
+* Fill in fields by their position in a list ("first" Vendor Address or "second" Line Item)
+* "Remember" information during the scenario (`When I record this "Requisition #"` and `When I fill out the following for that "Requisition #"`)
+* Handle asynchronous activity (reloading an action list until a document appears)
+* Highlighting page elements during a scenario with javascript)
+* Speed up, slow down, pause scenarios
+* Integrate into your CI
 
 Roadmap
 -------
 
 * Capybara
-* dot
-* dot
 
 Installation
 ------------

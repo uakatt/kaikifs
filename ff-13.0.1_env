@@ -1,10 +1,25 @@
+# The NetID of the user that will first be used to log into KFS, via WebAuth.
+# Even if all user switching is done with Backdoor, we need an initial user.
 export KAIKI_NETID=kfs-test-sec1
+
+# The environment that we will be working on. This must match a key in
+# `envs.json`.
 export KAIKI_ENV=dev
+
+# I have a firefox profile named "ff-13.0.1" that needs to be used locally.
 export KAIKI_FIREFOX_PROFILE=ff-13.0.1
+
+# Firefox 14 through maybe 17 don't work so hot with Selenium WebDriver. So I
+# have a manually compiled version of Firefox 13 that must be used.
 export KAIKI_FIREFOX_PATH=/home/sam/code/firefox/firefox-13.0.1/firefox
+
+# If this is set to true, then KaikiFS will report the "record" at the end of
+# every scenario. This typically will just consist of a memorized document
+# number or PO number, etc.
 export KAIKI_REPORT_RECORD=true
 
-# WARNING: feature totally exits, for use with asciiio.py
+# WARNING: feature totally exits the shell. This is only for use with
+# asciiio.py
 feature () {
   for f in $(find features ! -path "*/example_syntax/*" -name "*${1}*.feature")
   do
