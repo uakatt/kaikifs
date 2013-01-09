@@ -1,5 +1,9 @@
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__))
 
+# This is the top level file for KaikiFS that should be required in order to
+# load all of the KaikiFS module and its inner components. This file also loads
+# some monkey-patching for File and String, as well as the following gems:
+# headless and json.
 module KaikiFS
 end
 

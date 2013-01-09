@@ -2,6 +2,7 @@
 class WebauthAuthenticationError < StandardError
 end
 
-# An Exception class indicating that our environment is apparently in Maintenance Mode
+# An Exception class indicating that our environment is apparently in
+# Maintenance Mode
 class MaintenanceModeError < StandardError
 end

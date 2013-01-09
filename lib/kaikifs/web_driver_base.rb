@@ -265,6 +265,7 @@ class KaikiFS::WebDriver::Base
     ]
   end
 
+  # Make the screenshot directory, if it does not already exist.
   def mk_screenshot_dir(base)
     @screenshot_dir = File.join(base, Time.now.strftime("%Y-%m-%d.%H"))
     return if Dir::exists? @screenshot_dir
@@ -302,17 +303,21 @@ class KaikiFS::WebDriver::Base
     end
   end
 
-  # Take a screenshot, and save it to `@screenshot_dir` by the name `#{name}.png`
+  # Take a screenshot, and save it to `@screenshot_dir` by the name
+  # `#{name}.png`
   def screenshot(name)
     @driver.save_screenshot(File.join(@screenshot_dir, "#{name}.png"))
     puts "Screenshot saved to " + File.join(@screenshot_dir, "#{name}.png")
   end
 
-  # Assume the browser is looking at Kuali, and can click the main_menu_link, in order to trigger a redirect to WebAuth. Then login via WebAuth.
+  # Assume the browser is looking at Kuali, and can click the main_menu_link,
+  # in order to trigger a redirect to WebAuth. Then login via WebAuth.
   def login_via_webauth
     login_via_webauth_with @username, @password
   end
 
+  # Login via Webauth with a specific username, and optional password. If no
+  # password is given, it will be retrieved from the shared passwords file.
   def login_via_webauth_with(username, password=nil)
     password ||= self.class.shared_password_for username
     @driver.find_element(*main_menu_link).click
@@ -474,6 +479,9 @@ class KaikiFS::WebDriver::Base
     pause
   end
 
+  # Start a Selenium session by defining some profile attributes and the
+  # Firefox path, starting up Headless if so desired, and navigating to the
+  # home page.
   def start_session
     @download_dir = File.join(Dir::pwd, 'features', 'downloads')
     Dir::mkdir(@download_dir) unless Dir::exists? @download_dir
@@ -503,7 +511,8 @@ class KaikiFS::WebDriver::Base
     @driver.navigate.to (@envs[@env]['url'] || "https://kf-#{@env}.mosaic.arizona.edu/kfs-#{@env}")
   end
 
-  # Create and execute a `Selenium::WebDriver::Wait` for finding an element by `method` and `selector`
+  # Create and execute a `Selenium::WebDriver::Wait` for finding an element by
+  # `method` and `selector`
   def wait_for(method, locator)
     @log.debug "    wait_for: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(#{method}, #{locator})..."
     sleep 0.1  # based on http://groups.google.com/group/ruby-capybara/browse_thread/thread/5e182835a8293def fixes "NS_ERROR_ILLEGAL_VALUE"
