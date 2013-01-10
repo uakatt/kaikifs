@@ -102,28 +102,6 @@ class KaikiFS::WebDriver::Base
     end
   end
 
-  # Hide a visual vertical tab inside a document's layout. Accepts the "name" of the
-  # tab. Find the name of the tab by looking up the `title` of the `input` that is the
-  # close button. The title is everything after the word "close."
-  def hide_tab(name)
-    @log.debug "    hide_tab: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//input[@title='close #{name}']\")..."
-    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
-    wait.until { driver.find_element(:xpath, "//input[@title='close #{name}']") }
-    @driver.find_element(:xpath, "//input[@title='close #{name}']").click
-    pause
-  end
-
-  # Show a visual vertical tab inside a document's layout. Accepts the "name" of the
-  # tab. Find the name of the tab by looking up the `title` of the `input` that is the
-  # open button. The title is everything after the word "open."
-  def show_tab(name)
-    @log.debug "    show_tab: Waiting up to #{DEFAULT_TIMEOUT} seconds to find_element(:xpath, \"//input[@title='open #{name}']\")..."
-    wait = Selenium::WebDriver::Wait.new(:timeout => DEFAULT_TIMEOUT)
-    wait.until { driver.find_element(:xpath, "//input[@title='open #{name}']") }
-    @driver.find_element(:xpath, "//input[@title='open #{name}']").click
-    pause
-  end
-
   # Switch to the default tab/window/frame, and backdoor login as `user`
   def backdoor_as(user)
     switch_to.default_content
@@ -181,12 +159,6 @@ class KaikiFS::WebDriver::Base
     end
   end
 
-  # Temporarily redirects all stdout to `@stderr_log`
-  # I've effectively no-op'ed this.
-  #def dont_stdout!
-  #  yield if block_given?
-  #end
-
   # Enlargens the text of an element, using `method` and `locator`, by changing the `font-size`
   # in the style to be `3em`. It uses the following Javascript:
   #
@@ -224,17 +196,6 @@ class KaikiFS::WebDriver::Base
     end
   end
 
-#  def is_text_present(text, xpath='//*')
-#    begin
-#      @driver.find_element(:xpath, "#{xpath}[contains(text(),'"+text+"')]")
-#      true
-#    rescue Selenium::WebDriver::Error::NoSuchElementError
-#      @log.error "Could not find: @driver.find_element(:xpath, \"#{xpath}[contains(text(),'"+text+"')]\")"
-#      @log.error @driver.find_element(:xpath, xpath).inspect
-#      false
-#    end
-#  end
-
   # "Maximize" the current window using Selenium's `manage.window.resize_to`. This script
   # does not use the window manager's "maximize" capability, but rather resizes the window.
   # By default, it positions the window 64 pixels below and to the right of the top left
@@ -265,88 +226,16 @@ class KaikiFS::WebDriver::Base
     ]
   end
 
-  # Make the screenshot directory, if it does not already exist.
-  def mk_screenshot_dir(base)
-    @screenshot_dir = File.join(base, Time.now.strftime("%Y-%m-%d.%H"))
-    return if Dir::exists? @screenshot_dir
-    Dir::mkdir(@screenshot_dir)
-  end
-
-  # Pause for `@pause_time` by default, or for `time` seconds
-  def pause(time = nil)
-    @log.debug "  breathing..."
-    sleep (time or @pause_time)
-  end
-
   # Select a frame by its `id`
   def select_frame(id)
     @driver.switch_to().frame(id)
     pause
   end
 
-  def record_kfs_version
-    @driver.find_element(:id, "build").text =~ /(3.0-(?:\d+)) \(Oracle9i\)/
-    kfs_version = "%-7s" % $1
-    #@driver.save_screenshot("#{@screen_shot_dir}/main_#{@env}.png")
-    begin
-      ChunkyPNG  # will raise if library not included, fail back to normal screenshot in the 'rescue'
-      screen_string_in_base64 = @driver.screenshot_as(:base64)
-      @threads << Thread.new do
-        screen_string = Base64.decode64(screen_string_in_base64)
-        png_canvas = ChunkyPNG::Canvas.from_string(screen_string)
-        png_canvas = png_canvas.crop 0, 0, 900, 240
-        png_canvas = png_canvas.resample 450, 120
-        png_canvas.to_image.save("public/images/cropped_#{@env}.png", :fast_rgba)
-      end
-    rescue NameError
-      #@driver.save_screenshot("#{@screen_shot_dir}/cropped_#{@env}.png")
-    end
-  end
-
-  # Take a screenshot, and save it to `@screenshot_dir` by the name
-  # `#{name}.png`
-  def screenshot(name)
-    @driver.save_screenshot(File.join(@screenshot_dir, "#{name}.png"))
-    puts "Screenshot saved to " + File.join(@screenshot_dir, "#{name}.png")
-  end
-
   # Assume the browser is looking at Kuali, and can click the main_menu_link,
   # in order to trigger a redirect to WebAuth. Then login via WebAuth.
   def login_via_webauth
     login_via_webauth_with @username, @password
-  end
-
-  # Login via Webauth with a specific username, and optional password. If no
-  # password is given, it will be retrieved from the shared passwords file.
-  def login_via_webauth_with(username, password=nil)
-    password ||= self.class.shared_password_for username
-    @driver.find_element(*main_menu_link).click
-    sleep 1
-    @driver.find_element(:id, 'username').send_keys(username)
-    @driver.find_element(:id, 'password').send_keys(password)
-    @driver.find_element(:css, '#fm1 .btn-submit').click
-    sleep 1
-
-    # Check if we logged in successfully
-    begin
-      status = @driver.find_element(:id, 'status')
-      if    is_text_present("status") == "You entered an invalid NetID or password."
-        raise WebauthAuthenticationError.new
-      elsif is_text_present("status") == "Password is a required field."
-        raise WebauthAuthenticationError.new
-      end
-    rescue Selenium::WebDriver::Error::NoSuchElementError
-      # keep going
-    end
-
-    begin
-      expiring_password_link = @driver.find_element(:link_text, "Go there now")
-      if expiring_password_link
-        expiring_password_link.click
-      end
-    rescue Selenium::WebDriver::Error::NoSuchElementError
-      return
-    end
   end
 
   def run_in_envs(envs = @envs)

@@ -146,10 +146,59 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
     find(:xpath, xpath).set(false)
   end
 
+  # Hide a visual vertical tab inside a document's layout. Accepts the "name" of the
+  # tab. Find the name of the tab by looking up the `title` of the `input` that is the
+  # close button. The title is everything after the word "close."
+  def hide_tab(name)
+    find(:xpath, "//input[@title='close #{name}']").click
+    pause
+  end
+
+  # Show a visual vertical tab inside a document's layout. Accepts the "name" of the
+  # tab. Find the name of the tab by looking up the `title` of the `input` that is the
+  # open button. The title is everything after the word "open."
+  def show_tab(name)
+    find(:xpath, "//input[@title='open #{name}']").click
+    pause
+  end
+
   # 'host' attribute of {#url}
   def host
     uri = URI.parse url
     "#{uri.scheme}://#{uri.host}"
+  end
+
+  # Login via Webauth with a specific username, and optional password. If no
+  # password is given, it will be retrieved from the shared passwords file.
+  def login_via_webauth_with(username, password=nil)
+    password ||= self.class.shared_password_for username
+    @driver.find_element(*main_menu_link).click
+    sleep 1
+    fill_in 'NetID', :with => username
+    fill_in 'Password', :with => password
+    click_button('LOGIN')
+    sleep 1
+
+    # Check if we logged in successfully
+    begin
+      status = @driver.find_element(:id, 'status')
+      if    is_text_present("status") == "You entered an invalid NetID or password."
+        raise WebauthAuthenticationError.new
+      elsif is_text_present("status") == "Password is a required field."
+        raise WebauthAuthenticationError.new
+      end
+    rescue Selenium::WebDriver::Error::NoSuchElementError
+      # keep going
+    end
+
+    begin
+      expiring_password_link = @driver.find_element(:link_text, "Go there now")
+      if expiring_password_link
+        expiring_password_link.click
+      end
+    rescue Selenium::WebDriver::Error::NoSuchElementError
+      return
+    end
   end
 
   # "Maximize" the current window using Selenium's `manage.window.resize_to`.
@@ -190,8 +239,23 @@ class KaikiFS::CapybaraDriver::Base < KaikiFS::WebDriver::Base
     Dir::mkdir(@screenshot_dir)
   end
 
+  # Pause for `@pause_time` by default, or for `time` seconds
+  def pause(time = nil)
+    @log.debug "  breathing..."
+    sleep (time or @pause_time)
+  end
+
+  # "Overrides" Cucumbers handling of STDOUT.
   def puts(*args)
     @puts_method.call(*args)
+  end
+
+  # Take a screenshot, and save it to `@screenshot_dir` by the name
+  # `#{name}.png`
+  def screenshot(name)
+    # page.save_screenshot SHOULD work... but doesn't appear to be a method.
+    @driver.save_screenshot(File.join(@screenshot_dir, "#{name}.png"))
+    puts "Screenshot saved to " + File.join(@screenshot_dir, "#{name}.png")
   end
 
   # Start a browser session by choosing a Firefox profile, setting the Capybara
