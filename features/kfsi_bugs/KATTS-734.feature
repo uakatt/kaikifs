@@ -15,3 +15,4 @@ Feature: KATTS-734
     And I switch to the new window
     Then I shouldn't see an incident report
     And I shouldn't get an HTTP Status 500
+    And I close that window

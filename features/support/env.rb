@@ -5,23 +5,27 @@ require 'highline/import'
 require 'active_support/inflector'
 require 'yaml'
 
+STDOUT.sync = true
+
 class KaikiFSWorld
-  SHARED_PASSWORDS_FILE = "shared_passwords.yaml"
   username   = ENV['KAIKI_NETID']
   password   = ENV['KAIKI_PASSWORD']
   env        = ENV['KAIKI_ENV']
   env.split(',') if env
-  if File.exist? SHARED_PASSWORDS_FILE
-    shared_passwords = File.open(SHARED_PASSWORDS_FILE) { |h| YAML::load_file(h) }
-    #puts shared_passwords
-    if password.nil? and username and shared_passwords.keys.any? { |user| username[user] }
-      user_group = shared_passwords.keys.select { |user| username[user] }[0]
-      password = shared_passwords[user_group]
-    end
+  #if File.exist? SHARED_PASSWORDS_FILE
+  #  shared_passwords = File.open(SHARED_PASSWORDS_FILE) { |h| YAML::load_file(h) }
+  #  #puts shared_passwords
+  #  if password.nil? and username and shared_passwords.keys.any? { |user| username[user] }
+  #    user_group = shared_passwords.keys.select { |user| username[user] }[0]
+  #    password = shared_passwords[user_group]
+  #  end
+  #end
+  if password.nil? && username
+    password = KaikiFS::CapybaraDriver::Base.shared_password_for username  if password.nil? && username
   end
-  username ||= ask("NetID:  ")    { |q| q.echo = true }
-  password ||= ask("Password:  ") { |q| q.echo = "*" }
-  env ||= [] << ask("Environment/URL:  ") { |q| q.echo = true; q.default='dev' }
+  username ||=       ask("NetID:  ")           { |q| q.echo = true }
+  password ||=       ask("Password:  ")        { |q| q.echo = "*" }
+  env      ||= [] << ask("Environment/URL:  ") { |q| q.echo = true; q.default='dev' }
 
   is_headless = true
   if ENV['KAIKI_IS_HEADLESS']
@@ -30,7 +34,7 @@ class KaikiFSWorld
 
   firefox_profile = ENV['KAIKI_FIREFOX_PROFILE']
   firefox_path    = ENV['KAIKI_FIREFOX_PATH']
-  @@kaikifs = KaikiFS::WebDriver::KFS.new(username, password, :envs => env, :is_headless => is_headless, :firefox_profile => firefox_profile, :firefox_path => firefox_path)
+  @@kaikifs = KaikiFS::CapybaraDriver::KFS.new(username, password, :envs => env, :is_headless => is_headless, :firefox_profile => firefox_profile, :firefox_path => firefox_path)
   @@kaikifs.mk_screenshot_dir(File.join(Dir::pwd, 'features', 'screenshots'))
   @@kaikifs.start_session
   @@kaikifs.maximize_ish
@@ -40,7 +44,10 @@ class KaikiFSWorld
   @@kaikifs.record[:document_numbers] = ENV['KAIKI_DOC_NUMBERS'].split(',')  if ENV['KAIKI_DOC_NUMBERS']
 
   at_exit do
-    @@kaikifs.quit
+    # This quit has been commented out, because Capybara does it itself, in an at_exit:
+    # /home/sam/.rvm/gems/ruby-1.9.3-p125/gems/capybara-1.1.2/lib/capybara/selenium/driver.rb:21
+    # This is an open bug, unrelated to [#763](https://github.com/jnicklas/capybara/issues/763).
+    #@@kaikifs.quit
     @@kaikifs.headless.destroy if is_headless
   end
 
@@ -53,12 +60,21 @@ end
 
 After do |scenario|
   if scenario.failed?
-    kaikifs.screenshot(scenario.file_colon_line.file_safe + '_' + Time.now.strftime("%Y%m%d%H%M%S"))
+    screenshot_file = scenario.file_colon_line.file_safe + '_' + Time.now.strftime("%Y%m%d%H%M%S")
+    kaikifs.screenshot(screenshot_file)
+  end
+
+  if ENV['KAIKI_REPORT_RECORD'] =~ /1|true|yes/i
+    STDOUT.puts "      Recorded Values:"
+    kaikifs.record.each do |k,v|
+      STDOUT.puts "        #{k.to_s.titleize}: #{v}"
+    end
   end
 end
 
 Before do
   kaikifs.headless.video.start_capture if kaikifs.is_headless
+  kaikifs.puts_method = method(:puts)
 end
 
 After do |scenario|

@@ -62,6 +62,7 @@ end
 # WD
 When /^I set the "([^"]*)" to something like "([^"]*)"$/ do |field, value|
   value = value + ' ' + Time.now.strftime("%Y%m%d%H%M%S")
+  puts value
   kaikifs.set_approximate_field(
     ApproximationsFactory.transpose_build(
       "//%s[contains(text()%s, '#{field}')]/../following-sibling::td/%s",
@@ -148,12 +149,13 @@ end
 
 # WD
 When /^I set a new ([^']*)'s "([^"]*)" to "([^"]*)"$/ do |tab, field, value|
-  object =
-    case tab
-    when 'Address' then 'Address'
-    else                tab.pluralize  # Assignee  -->  Assignees
-    end
-  div = "tab-#{object}-div"
+  #object =
+  #  case tab
+  #  when 'Address' then 'Address'
+  #  else                tab.pluralize  # Assignee  -->  Assignees
+  #  end
+  #div = "tab-#{object}-div"
+  div = tab_id_for(tab)
   row =
     case tab
     when 'Item' then 'tr[2]'  # Specifically for a Requisition...
@@ -228,7 +230,7 @@ When /^I (check|uncheck) the "([^"]*)" for the new "([^"]*)"$/ do |check, field,
         else                              "tab-#{child.pluralize}-div"
         end
   xpath = "//*[@id='#{div}']//th/label[contains(text(), '#{field}') and contains(@id, '.newMaintainableObject.')]/../following-sibling::td/input[1]"
-  kaikifs.send(check.to_sym, :xpath, xpath)
+  kaikifs.send((check+'_by_xpath').to_sym, xpath)
 end
 
 # WD
@@ -237,12 +239,7 @@ When /^I add that "([^"]*)"$/ do |child|
   when child =~ /Vendor Address|vendorAddress/  # A new vendor fieldset has no id.
     kaikifs.click_and_wait :id, 'methodToCall.addLine.vendorAddresses.(!!org.kuali.kfs.vnd.businessobject.VendorAddress!!)'
   else
-    div =
-      case
-      when child == 'Search Alias'       then 'tab-SearchAlias-div'
-      when child == 'Supplier Diversity' then 'tab-SupplierDiversity-div'
-      else                                    "tab-#{child.pluralize}-div"
-      end
+    div = tab_id_for(child)
 
     # click the (only) add button in the right tab. Example: Group > create new > Assignees
     # hard-coding add1.gif until we need another image. I don't just want to rely on 'add' yet...
@@ -296,18 +293,6 @@ When /^I add that Default Address and wait/i do
 end
 
 # WD
-When /^I fill out a new (?:Vendor Address|vendorAddress) with default values$/ do
-  prefix = "document.newMaintainableObject.add.vendorAddresses."
-  kaikifs.set_field(prefix+'vendorAddressTypeCode', 'PURCHASE ORDER')
-  kaikifs.set_field(prefix+'vendorLine1Address', '123 main St.')
-  kaikifs.set_field(prefix+'vendorCityName', 'Tucson')
-  kaikifs.set_field(prefix+'vendorStateCode', 'AZ')
-  kaikifs.set_field(prefix+'vendorZipCode', '85719')
-  kaikifs.set_field(prefix+'vendorCountryCode', 'UNITED STATES')
-  kaikifs.set_field(prefix+'vendorDefaultAddressIndicator', 'Yes')
-end
-
-# WD
 When /^I fill out a new Item with default values$/ do
   prefix = "newPurchasingItemLine."
   kaikifs.set_field(prefix+'itemTypeCode', 'QUANTITY TAXABLE')
@@ -315,15 +300,6 @@ When /^I fill out a new Item with default values$/ do
   kaikifs.set_field(prefix+'itemUnitOfMeasureCode', 'BDL')  # Bundle
   kaikifs.set_field(prefix+'itemDescription', 'Surprises')
   kaikifs.set_field(prefix+'itemUnitPrice', '3.14')
-end
-
-# WD
-When /^I fill out a new (?:Vendor Address|vendorAddress) with the following:$/ do |table|
-  fields = table.rows_hash
-  prefix = "document.newMaintainableObject.add.vendorAddresses."
-  fields.each do |key, value|
-    kaikifs.set_field(prefix+key, value)
-  end
 end
 
 # WD
@@ -390,8 +366,10 @@ When /^I fill out the ([0-9a-z]+) Item's "([^"]*)" with the following new Source
     end
 
     # NEED SOME STUFF TO DOUBLE CHECK THAT ITS ALL FILLED OUT.
-    break unless (kaikifs.is_text_present("account not found") or  # Chart 'AZ' was selected
-                  kaikifs.is_text_present("chart code is empty"))  # No Chart was selected
+    #break unless (kaikifs.is_text_present("account not found") or  # Chart 'AZ' was selected
+    #              kaikifs.is_text_present("chart code is empty"))  # No Chart was selected
+    break unless (kaikifs.has_content? "account not found" or  # Chart 'AZ' was selected
+                  kaikifs.has_content? "chart code is empty")  # No Chart was selected
     retries -= 1
     if retries < 0
       kaikifs.log.error "The #{ordinal} item's new Source Lines didn't fill out so well. No more retries."
@@ -444,4 +422,19 @@ Transform /#\{\d+i\}/ do |v|
     d = $1.to_i-1
     (rand*(9*10**d) + 10**d).to_i
   end
+end
+
+def tab_id_for(tab_name)
+  singlulars = [
+    # Vendor -> create new
+    'Address',                     'Contact',              'Supplier Diversity',
+    'Shipping Special Conditions', 'Search Alias',         'Vendor Phone Number',
+    'Customer Number',             'Additional Attributes'
+               ]
+  object =
+    case
+    when singlulars.include?(tab_name) then tab_name.gsub(' ', '')
+    else                                    tab_name.pluralize  # Assignee  -->  Assignees
+    end
+  return "tab-#{object}-div"
 end

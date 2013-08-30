@@ -1,15 +1,14 @@
-Feature: KFSI-5783
+Feature: Purchasing PA-001
 
   Background:
     Given I am up top
 
-  @jira
   Scenario:
 
     Given I am logged in
     And I am on the "main_menu" tab
     When I click the "Requisition" portal link
-    And I set the "Description" to something like "testing: KFSI-5783"
+    And I set the "Description" to something like "testing: PA-001"
     And I check "Receiving Required"
     And I start a lookup for "Building"
     And I set the "Building Code" to "10"
@@ -23,7 +22,6 @@ Feature: KFSI-5783
     And I set the "Vendor Name" to "Micron"
     And I click "search"
     And I return with the first result
-    #And I fill out a new Item with default values
     And I set a new Item's "Item Type" to "QUANTITY TAXABLE"
     And I set a new Item's "Quantity" to "10"
     And I set a new Item's "UOM" to "ea"
@@ -73,6 +71,7 @@ Feature: KFSI-5783
 
     When I record this document number
     When I record this "Requisition #"
+    And I save a screenshot as "Requisition Doc"
     And I backdoor as the fiscal officer
     And I open my Action List, refreshing until that document appears
     And I pause

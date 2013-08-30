@@ -1,6 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'actionpack'
+gem 'capybara', '< 2.0'
 gem 'chunky_png'
 gem 'cucumber'
 gem 'headless'

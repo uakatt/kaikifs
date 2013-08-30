@@ -38,20 +38,17 @@ end
 # WD
 When /^I wait for that document to appear in my Action List$/i do
   doc_nbr = kaikifs.record[:document_number]
-  refresh_tries = 5
-  wait_time = 1
+  attempts  = 8
+  wait_time = 2
 
-  begin
-    wait = Selenium::WebDriver::Wait.new(:timeout => 4).
-      until { kaikifs.find_element(:xpath, "//a[contains(text(), '#{doc_nbr}')]") }
-    kaikifs.find_element(:xpath, "//a[contains(text(), '#{doc_nbr}')]").text
-  rescue Selenium::WebDriver::Error::TimeOutError => command_error
-    puts "#{refresh_tries} retries left... #{Time.now}"
-    refresh_tries -= 1
-    raise command_error if refresh_tries == 0
-    kaikifs.pause wait_time
+  loop do
+    break if kaikifs.has_selector?(:xpath, "//a[contains(text(), '#{doc_nbr}')]")
+
+    raise Capybara::ElementNotFound if attempts <= 0
+    attempts -= 1
+    puts "#{attempts} retries left... #{Time.now}"
     kaikifs.click_and_wait :name, "methodToCall.start"  # 'refresh'
-    retry
+    kaikifs.pause wait_time
   end
 end
 
@@ -111,6 +108,7 @@ When /^I click "([^"]*)" with reason "([^"]*)"$/ do |link, reason|
     kaikifs.click_and_wait :xpath, "//input[@title='#{link}']"
   end
   kaikifs.set_field("//*[@name='reason']", reason)
+  sleep 5
   kaikifs.click_and_wait :name, 'methodToCall.processAnswer.button0'  # The 'yes' button
 end
 
@@ -157,9 +155,10 @@ When /^I (?:return(?: with)?|open) the "([^"]*)" (?:result|one)$/ do |key|
   kaikifs.click_and_wait(:xpath, "//a[contains(text(), '#{key}')]/ancestor::tr/td[1]/a")
 end
 
-#When /^I edit the "([^"]*)" one$/ do |key|
-#  kaikifs.click_and_wait("xpath=//a[contains(text(), '#{key}')]/ancestor::tr/td[1]/a[contains(@title,'edit')]")
-#end
+# WD
+When /^I edit the "([^"]*)" one$/ do |key|
+  kaikifs.click_and_wait(:xpath, "//a[contains(text(), '#{key}')]/ancestor::tr/td[1]/a[contains(@title,'edit')]")
+end
 
 # WD
 When /^I edit the first one$/ do
